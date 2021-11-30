@@ -16,7 +16,7 @@
 **/
 
 module.exports = {
-    config_id: process.env.CONFIG_ID,
+    node_env: process.env.NODE_ENV,
     server_ip: process.env.HOST,
     server_port: process.env.PORT,
     app: {

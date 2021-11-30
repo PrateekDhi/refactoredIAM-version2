@@ -1,3 +1,6 @@
+const { config } = require('dotenv');
+const winston = require('winston');
+
 const customLevels = {
     levels: {
       trace: 5,
@@ -30,9 +33,7 @@ const formatter = winston.format.combine(
     }),
 );
 
-class Logger {
-    logger = winston.Logger;
-    
+class Logger {    
     constructor() {
       const prodTransport = new winston.transports.File({
         filename: 'logs/error.log',
@@ -42,9 +43,9 @@ class Logger {
         format: formatter,
       });
       this.logger = winston.createLogger({
-        level: isDevEnvironment() ? 'trace' : 'error',
+        level: config.node_env !== 'production' ? 'trace' : 'error',
         levels: customLevels.levels,
-        transports: [isDevEnvironment() ? transport : prodTransport],
+        transports: [config.node_env !== 'production' ? transport : prodTransport],
       });
       winston.addColors(customLevels.colors);
     }
@@ -74,4 +75,4 @@ class Logger {
     }
 }
     
-export const logger = new Logger();
+module.exports = new Logger();
