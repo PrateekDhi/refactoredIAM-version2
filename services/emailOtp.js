@@ -57,7 +57,7 @@ exports.insertNewEmailOTP = (userId,otp,type,service,attemptNumber) => {
         .then(([rows,fields]) => {
             // console.log('--------------------------------')
             // console.log(rows.affectedRows, fields);
-            if(rows.affectedRows != 1) return reject("No rows affected while inserting email otp");
+            if(rows.affectedRows != 1) throw new Error("No rows affected while inserting email otp");
             else return resolve(assignedOTPId);
         })
         .catch(error => reject(error));

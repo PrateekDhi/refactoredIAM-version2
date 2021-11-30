@@ -13,16 +13,20 @@ exports.insertNewAccessToken = (token,userId,clientId,accessTokenExpiresAt,scope
         accessToken.save()
         .then(([rows,fields]) => {
             // console.log(rows.affectedRows, fields);
-            if(rows.affectedRows != 1) return reject("No rows affected while inserting access token");
+            if(rows.affectedRows != 1) throw new Error("No rows affected while inserting access token");
             else return resolve(tokenId);
         })
         .catch(error => {
-          console.log(error)
           if(error.sqlMessage){
-            console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-            error.message = "Database server error";
+            const caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return reject(caughtError);
+            // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            // error.message = "Database server error";
           }
-          return reject(error);
+          const caughtError = new definedErrors.InternalServerError();
+          caughtError.setAdditionalDetails(error);
+          return reject(caughtError);
         });
     })
 }
@@ -35,16 +39,20 @@ exports.insertNewRefreshToken = (token,userId,clientId,accessTokenExpiresAt,acce
         refreshToken.save()
         .then(([rows,fields]) => {
             // console.log(rows.affectedRows, fields);
-            if(rows.affectedRows != 1) return reject("No rows affected while inserting refresh token");
+            if(rows.affectedRows != 1) throw new Error("No rows affected while inserting refresh token");
             else return resolve(tokenId);
         })
         .catch(error => {
-          console.log(error)
           if(error.sqlMessage){
-            console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-            error.message = "Database server error";
+            const caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return reject(caughtError);
+            // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            // error.message = "Database server error";
           }
-          return reject(error);
+          const caughtError = new definedErrors.InternalServerError();
+          caughtError.setAdditionalDetails(error);
+          return reject(caughtError);
         });
     })
 }

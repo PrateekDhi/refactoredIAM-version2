@@ -53,29 +53,32 @@ module.exports = (router, app) => {
         return app.oauth.token(request, response, tOptions)
         .then(token => {
             res.json(token);
-        }).catch( err => {
-            console.log("--jjfjkfjkffofj=----")
-            console.log("----obtainToken error-----"+err)
+        }).catch(err => {
+            next(err);
+            // console.log("--jjfjkfjkffofj=----")
+            // console.log("----obtainToken error-----"+err)
             // delete err.statusCode
-            if(err.internalCode != null){
-                // delete err.statusCode; //same as code
-                delete err.status; //same as code
-                delete err.code;
-                let responseError = {...err}
-                responseError.code = responseError.internalCode;
-                delete responseError.internalCode;
-                delete responseError.statusCode
-                res.status(err.statusCode || 500).json(responseError);
-            }else{
-                res.locals.errObject = err;
-                next();
-            }
+            // if(err.internalCode != null){
+            //     // delete err.statusCode; //same as code
+            //     // delete err.status; //same as code
+            //     // delete err.code;
+            //     // let responseError = {...err}
+            //     // responseError.code = responseError.internalCode;
+            //     // delete responseError.internalCode;
+            //     // delete responseError.statusCode
+            //     // res.status(err.statusCode || 500).json(responseError);
+            // }else{
+            //     res.locals.errObject = err;
+            //     next();
+            // }
         });
     }
     
-    router.post('/getAccessToken', manageAuthenticationGrantType, obtainToken, oauthErrorHandler); //TODO: Add validation middleware
+    // router.post('/getAccessToken', manageAuthenticationGrantType, obtainToken, oauthErrorHandler); //TODO: Add validation middleware
+    router.post('/getAccessToken', manageAuthenticationGrantType, obtainToken);
 
-    router.post('/refreshToken', manageRefreshTokenRequest, obtainToken,  oauthErrorHandler); //TODO: Add validation middleware
+    // router.post('/refreshToken', manageRefreshTokenRequest, obtainToken,  oauthErrorHandler); //TODO: Add validation middleware
+    router.post('/refreshToken', manageRefreshTokenRequest, obtainToken);
 
     return router;
 }

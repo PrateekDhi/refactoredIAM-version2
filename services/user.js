@@ -1,5 +1,5 @@
 const cn = require('../utils/common');
-const error = require('../errors');
+const definedErrors = require('../errors');
 const User = require('../models/User');
 
 exports.findUserByEmailAddress = (email) => {
@@ -7,6 +7,7 @@ exports.findUserByEmailAddress = (email) => {
         User.findByEmail(email)
         .then(([rows,fields]) => {
             let returnValue = {};
+            let caughtError;
             if(rows.length == 1){
                 returnValue.present = true;
                 returnValue.data = rows[0]
@@ -15,14 +16,23 @@ exports.findUserByEmailAddress = (email) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            return reject("Duplicate entries found for given email - ", email);
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails("Duplicate entries found for given email - ", email);
+            return reject(caughtError);
+            // caughtError = error.InternalServerError();
+            // return reject("Duplicate entries found for given email - ", email);
         })
         .catch(error => {
             if(error.sqlMessage){
-              console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-              error.message = "Database server error";
+                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+            //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            //   error.message = "Database server error";
             }
-            return reject(error);
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
         });
     })
 }
@@ -40,14 +50,23 @@ exports.findUserByUsername = (username) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            return reject("Duplicate entries found for given email - ", email);
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails("Duplicate entries found for given username - "+username);
+            return reject(caughtError);
+            // return reject("Duplicate entries found for given email - ", email);
         })
         .catch(error => {
             if(error.sqlMessage){
-              console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-              error.message = "Database server error";
+                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+                // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+                // error.message = "Database server error";
             }
-            return reject(error);
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
+            // return reject(error);
         });
     })
 }
@@ -69,10 +88,16 @@ exports.findUserEmailByUsername = (username) => {
         })
         .catch(error => {
             if(error.sqlMessage){
-              console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-              error.message = "Database server error";
+                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+            //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            //   error.message = "Database server error";
             }
-            return reject(error);
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
+            // return reject(error);
         });
     })
 }
@@ -90,16 +115,21 @@ exports.insertNewUser = (firstName, middleName, lastName, email, username, passw
             return user.save();
         })
         .then(([rows,fields]) => {
-            if(rows.affectedRows != 1) return reject("No rows affected while inserting user");
+            if(rows.affectedRows != 1) throw new Error("No rows affected while inserting user");
             else return resolve(userId);
         })
         .catch(error => {
-          console.log(error)
-          if(error.sqlMessage){
-            console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-            error.message = "Database server error";
-          }
-          return reject(error);
+            console.log(error)
+            if(error.sqlMessage){
+                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+                // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+                // error.message = "Database server error";
+            }
+            const caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
         });
     })
 }

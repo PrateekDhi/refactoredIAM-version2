@@ -6,7 +6,8 @@ class ApplicationError extends Error{
         this.message = message || "Internal Server Error";
         this.status = status || 500;
         this.internalCode = internalCode || 500;
-        errors != null ? this.errors = errors : null
+        errors != null ? this.errors = errors : null;
+        this.additionalDetails = null;
     }
     
     getResponseObject() {
@@ -20,6 +21,14 @@ class ApplicationError extends Error{
 
     setMessage(message) {
         this.message = message;
+    }
+
+    setErrors(errorsArray) {
+        this.errors = errorsArray;
+    }
+
+    setAdditionalDetails(additionalDetails) {
+        this.additionalDetails = additionalDetails;
     }
 }
 

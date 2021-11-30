@@ -41,7 +41,7 @@ exports.insertNewTemporaryUser = (firstName, lastName, email, password, countryC
           return temporaryUser.save();
       })
       .then(([rows,fields]) => {
-          if(rows.affectedRows != 1) return reject("No rows affected while inserting temporary user");
+          if(rows.affectedRows != 1) throw new Error("No rows affected while inserting temporary user");
           else return resolve(temporaryUserId);
       })
       .catch(error => {

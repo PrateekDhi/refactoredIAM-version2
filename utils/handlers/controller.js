@@ -13,8 +13,6 @@
  * 10/11/2021 - PS - Created
  * 
 **/
-const error = require('../../errors');
-const ApplicationError = error.ApplicationError
 
 const controllerHandler = (promise, params) => async (req, res, next) => {
     // console.log(promise)
@@ -29,8 +27,6 @@ const controllerHandler = (promise, params) => async (req, res, next) => {
       return res.json(result || { code: 200, message: 'OK' });
     } catch (error) {
       next(error);
-      if(error instanceof ApplicationError) return res.json(error.getResponseObject());
-      return res.json({code: 500, message: 'Internal server error', name: 'internal_server_error'})
       // console.log(error instanceof Error)
       // if(error instanceof Error) console.log(error);
       // const returnError = error instanceof Error ? {code: 500, message: 'Internal server error', name: 'internal_server_error'} : error;
