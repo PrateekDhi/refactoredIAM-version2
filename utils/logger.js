@@ -1,6 +1,10 @@
 const winston = require('winston');
 const config = require('../config');
 
+const cn = require('./common');
+
+const today = cn.formattedTodaysDate()
+
 const customLevels = {
     levels: {
       trace: 5,
@@ -35,18 +39,22 @@ const formatter = winston.format.combine(
 
 class Logger {    
     constructor() {
-      console.log(config.node_env)
-      const prodTransport = new winston.transports.File({
-        filename: 'logs/error.log',
+      const saveToFileTransport = new winston.transports.File({
+        format: formatter,
+        filename: `logs/error_${today}.log`,
         level: 'error',
       });
-      const transport = new winston.transports.Console({
+      const consoleLogTransport = new winston.transports.Console({
         format: formatter,
       });
+      let transports;
+      if(config.node_env === 'production') transports = [saveToFileTransport];
+      else if(config.node_env === 'development') transports = [consoleLogTransport,saveToFileTransport];
+      else transports = [consoleLogTransport]
       this.logger = winston.createLogger({
         level: config.node_env !== 'production' ? 'trace' : 'error',
         levels: customLevels.levels,
-        transports: [(config.node_env !== 'production' || config.node_env !== 'development')? transport : prodTransport],
+        transports: transports,
       });
       winston.addColors(customLevels.colors);
     }
