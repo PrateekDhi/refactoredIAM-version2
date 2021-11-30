@@ -39,6 +39,7 @@ const formatter = winston.format.combine(
 
 class Logger {    
     constructor() {
+      //TODO: Check why new log files are not created while the server is running already, since we need to created log file on daily basis.
       const saveToFileTransport = new winston.transports.File({
         format: formatter,
         filename: `logs/error_${today}.log`,
