@@ -4,7 +4,7 @@ const logger = require('../logger');
 const ApplicationError = serverErrors.ApplicationError;
 
 class ErrorHandler {
-    static async handleError(error) {
+    async handleError(error) {
         //TODO: Divide errors into levels and log accordingly
         await logger.error(
             'Error message from the centralized error-handling component',
@@ -14,7 +14,7 @@ class ErrorHandler {
         // await sendEventsToSentry();
     }
 
-    static isTrustedError(error) {
+    isTrustedError(error) {
         // if (error instanceof ApplicationError) {
         //   return error.isOperational;
         // }

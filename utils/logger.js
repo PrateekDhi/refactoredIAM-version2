@@ -1,5 +1,5 @@
-const { config } = require('dotenv');
 const winston = require('winston');
+const config = require('../config');
 
 const customLevels = {
     levels: {
@@ -35,6 +35,7 @@ const formatter = winston.format.combine(
 
 class Logger {    
     constructor() {
+      console.log(config.node_env)
       const prodTransport = new winston.transports.File({
         filename: 'logs/error.log',
         level: 'error',
@@ -45,7 +46,7 @@ class Logger {
       this.logger = winston.createLogger({
         level: config.node_env !== 'production' ? 'trace' : 'error',
         levels: customLevels.levels,
-        transports: [config.node_env !== 'production' ? transport : prodTransport],
+        transports: [(config.node_env !== 'production' || config.node_env !== 'development')? transport : prodTransport],
       });
       winston.addColors(customLevels.colors);
     }

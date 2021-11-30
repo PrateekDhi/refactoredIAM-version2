@@ -48,4 +48,8 @@ module.exports = class Client {
   static findGrantTypeById(id){
     return db.execute('SELECT grantType FROM client WHERE client._id = ?', [id]);
   }
+
+  static findCountrForId(id) {
+    return db.execute('SELECT COUNT(*) AS count FROM client WHERE client._id = ?', [id]);
+  }
 };

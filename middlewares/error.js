@@ -1,6 +1,7 @@
 const cn = require('../utils/common');
-const error = require('../logs/logger').createLogger;
 const errorHandler = require('../utils/handlers/error');
+const definedErrors = require('../errors');
+const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = async (err, req, res, next) => {
     if (!res.headersSent) {

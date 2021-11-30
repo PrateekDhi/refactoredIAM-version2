@@ -2,7 +2,7 @@ const config = require('../config');
 const sgMail = require('@sendgrid/mail');
 const cn = require('../utils/common');
 const EmailOTP = require('../models/EmailOTP');
-const error = require('../errors');
+const definedErrors = require('../errors');
 
 sgMail.setApiKey(config.email_gateway_api_key);
 
@@ -60,7 +60,20 @@ exports.insertNewEmailOTP = (userId,otp,type,service,attemptNumber) => {
             if(rows.affectedRows != 1) throw new Error("No rows affected while inserting email otp");
             else return resolve(assignedOTPId);
         })
-        .catch(error => reject(error));
+        .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
+            if(error.sqlMessage){
+                caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+                // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+                // error.message = "Database server error";
+            }
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
+        });
     })
 }
 
@@ -80,11 +93,23 @@ exports.getEmailOTPByUserIdAndOtp = (id,otp) => {
             return reject("Duplicate entries found for given username - ", username);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-              console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-              error.message = "Database server error";
+                caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+                // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+                // error.message = "Database server error";
             }
-            return reject(error);
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
+            // if(error.sqlMessage){
+            //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            //   error.message = "Database server error";
+            // }
+            // return reject(error);
         });
     })
 }
@@ -105,11 +130,23 @@ exports.getEmailOTPDataById = (id) => {
             return reject("Duplicate entries found for given email otp id - ", id);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-              console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-              error.message = "Database server error";
+                caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+                // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+                // error.message = "Database server error";
             }
-            return reject(error);
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
+            // if(error.sqlMessage){
+            //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            //   error.message = "Database server error";
+            // }
+            // return reject(error);
         });
     })
 }
@@ -121,11 +158,23 @@ exports.deleteEmailOTPById = (id) => {
             return resolve(true);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-                console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-                error.message = "Database server error";
+                caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return reject(caughtError);
+                // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+                // error.message = "Database server error";
             }
-            return reject(error);
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return reject(caughtError);
+            // if(error.sqlMessage){
+            //     console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+            //     error.message = "Database server error";
+            // }
+            // return reject(error);
         });
     })
 }

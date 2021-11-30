@@ -36,7 +36,8 @@ const bcryptService = require('../services/bcrypts');
 const Response = require('../utils/response');
 
 //Errors
-const error = require('../errors');
+const definedErrors = require('../errors');
+const ApplicationError = definedErrors.ApplicationError;
 
 exports.userRegistrationDetails = (firstName,lastName,email,password,countryCode,phoneNumber,client_id,service) => {
 /**
@@ -74,12 +75,11 @@ exports.userRegistrationDetails = (firstName,lastName,email,password,countryCode
             return resolve(response.getResponse());
         })
         .catch(err => {
-            if(err.message == "Database server error"){
-                const response = new Response(null,"User registration details addition failed", 503, "database_server_error", 503)
-                return reject(response.getResponse());
-            } else {
-                const response = new Response(null,"User registration details addition failed", 500, "internal_server_error", 500)
-                return reject(response.getResponse());
+            if(err instanceof ApplicationError) reject(err);
+            else {
+                caughtError = new definedErrors.InternalServerError();
+                caughtError.setAdditionalDetails(err);
+                return reject(caughtError);
             }
         })
     })
@@ -180,6 +180,7 @@ exports.userLoginDetails = (client_id, username, service, isEmail, userId) => {
         let userId;
         let userEmail;
         return new Promise((resolve,reject) => {
+            console.log(isEmail)
             if(isEmail) resolve(username.toLowerCase())
             else userService.findUserEmailByUsername(username)
             .then(result => {
@@ -196,6 +197,7 @@ exports.userLoginDetails = (client_id, username, service, isEmail, userId) => {
             ])
         })
         .then(results => {
+            console.log(results);
             userId = results[1].data._id;
             return emailService.insertNewEmailOTP(userId,results[0].eOTP,'login',service,1);
         })

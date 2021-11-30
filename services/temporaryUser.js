@@ -1,5 +1,5 @@
 const cn = require('../utils/common');
-const error = require('../errors');
+const definedErrors = require('../errors');
 const TemporaryUser = require('../models/TemporaryUser');
 // const { Console } = require('winston/lib/winston/transports');
 
@@ -19,11 +19,23 @@ exports.findTemporaryUserById = (id) => {
         return reject("Duplicate entries found for given temporary user id - ", id);
     })
     .catch(error => {
+        if(error instanceof ApplicationError) return reject(error);
+        let caughtError;
         if(error.sqlMessage){
-          console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-          error.message = "Database server error";
+          caughtError = new definedErrors.DatabaseServerError();
+          caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+          return reject(caughtError);
+          // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+          // error.message = "Database server error";
         }
-        return reject(error);
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return reject(caughtError);
+        // if(error.sqlMessage){
+        //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+        //   error.message = "Database server error";
+        // }
+        // return reject(error);
     });
   })
 }
@@ -45,11 +57,23 @@ exports.insertNewTemporaryUser = (firstName, lastName, email, password, countryC
           else return resolve(temporaryUserId);
       })
       .catch(error => {
+        if(error instanceof ApplicationError) return reject(error);
+        let caughtError;
         if(error.sqlMessage){
-          console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-          error.message = "Database server error";
+          caughtError = new definedErrors.DatabaseServerError();
+          caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+          return reject(caughtError);
+          // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+          // error.message = "Database server error";
         }
-        return reject(error);
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return reject(caughtError);
+        // if(error.sqlMessage){
+        //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+        //   error.message = "Database server error";
+        // }
+        // return reject(error);
       });
     })
 }
@@ -64,11 +88,23 @@ exports.checkTemporaryUserExistence = (id) => {
       return reject ("Duplicate entries found for temporary user id -", id)
     })
     .catch(error => {
+      if(error instanceof ApplicationError) return reject(error);
+      let caughtError;
       if(error.sqlMessage){
-        console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-        error.message = "Database server error";
+        caughtError = new definedErrors.DatabaseServerError();
+        caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+        return reject(caughtError);
+        // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+        // error.message = "Database server error";
       }
-      return reject(error);
+      caughtError = new definedErrors.InternalServerError();
+      caughtError.setAdditionalDetails(error);
+      return reject(caughtError);
+      // if(error.sqlMessage){
+      //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+      //   error.message = "Database server error";
+      // }
+      // return reject(error);
     });
   })
 }
@@ -80,11 +116,23 @@ exports.deleteTemporaryUserById = (id) => {
       return resolve(true);
     })
     .catch(error => {
+      if(error instanceof ApplicationError) return reject(error);
+      let caughtError;
       if(error.sqlMessage){
-        console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
-        error.message = "Database server error";
+        caughtError = new definedErrors.DatabaseServerError();
+        caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+        return reject(caughtError);
+        // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+        // error.message = "Database server error";
       }
-      return reject(error);
+      caughtError = new definedErrors.InternalServerError();
+      caughtError.setAdditionalDetails(error);
+      return reject(caughtError);
+      // if(error.sqlMessage){
+      //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
+      //   error.message = "Database server error";
+      // }
+      // return reject(error);
     });
   })
 }

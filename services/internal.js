@@ -1,1 +1,1 @@
-const error = require('../errors');
+const definedErrors = require('../errors');

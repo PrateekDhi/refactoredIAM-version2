@@ -1,5 +1,5 @@
 const cn = require('../utils/common');
-const error = require('../errors');
+const definedErrors = require('../errors');
 
 const AccessToken = require('../models/AccessToken');
 const RefreshToken = require('../models/RefreshToken');
@@ -17,14 +17,16 @@ exports.insertNewAccessToken = (token,userId,clientId,accessTokenExpiresAt,scope
             else return resolve(tokenId);
         })
         .catch(error => {
+          if(error instanceof ApplicationError) return reject(error);
+          let caughtError;
           if(error.sqlMessage){
-            const caughtError = new definedErrors.DatabaseServerError();
+            caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
             return reject(caughtError);
             // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             // error.message = "Database server error";
           }
-          const caughtError = new definedErrors.InternalServerError();
+          caughtError = new definedErrors.InternalServerError();
           caughtError.setAdditionalDetails(error);
           return reject(caughtError);
         });
@@ -43,14 +45,16 @@ exports.insertNewRefreshToken = (token,userId,clientId,accessTokenExpiresAt,acce
             else return resolve(tokenId);
         })
         .catch(error => {
+          if(error instanceof ApplicationError) return reject(error);
+          let caughtError;
           if(error.sqlMessage){
-            const caughtError = new definedErrors.DatabaseServerError();
+            caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
             return reject(caughtError);
             // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             // error.message = "Database server error";
           }
-          const caughtError = new definedErrors.InternalServerError();
+          caughtError = new definedErrors.InternalServerError();
           caughtError.setAdditionalDetails(error);
           return reject(caughtError);
         });

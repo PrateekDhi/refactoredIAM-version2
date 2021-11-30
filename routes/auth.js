@@ -12,7 +12,8 @@ const clientService = require('../services/client');
 const Response = require('../utils/response');
 
 //Errors
-const error = require('../errors');
+const definedErrors = require('../errors');
+const ApplicationError = definedErrors.ApplicationError;
 
 module.exports = (router, app) => {
     // router.use(validationMiddleware)
@@ -27,6 +28,25 @@ module.exports = (router, app) => {
     //User login details(Login STEP 1) Route
     router.post('/userLoginDetails',
     (req, res, next) => {
+        clientService.checkClientExistenceById(req.body.client_id)
+        .then(exists => {
+            if(exists) return next();
+            throw new Error('Incorrect Client Id');
+        })
+        .catch(err => {
+            if(err instanceof ApplicationError) return next(err);
+            let caughtError;
+            if(err.message == 'Incorrect Client Id'){
+                caughtError = new definedErrors.IncorrectClientId();
+                caughtError.setAdditionalDetails("Incorrect client id in request body during /userLoginDetails");
+                return next(caughtError);
+            }
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return next(caughtError);
+        })
+    },
+    (req, res, next) => {
         //TODO: This has to be done later via validation middleware
         if(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(req.body.username)) req.isEmail = true; //checking if the field is an email address
         else req.isEmail = false;
@@ -35,37 +55,48 @@ module.exports = (router, app) => {
     (req, res, next) => {
         //TODO: This has to be done later via validation middleware
         //Optimization - We can create a separate service function which only gets the count of users by email
-        next();
-        // if(req.isEmail){
-        //     userService.findUserByEmailAddress(req.body.username.toLowerCase())
-        //     .then(fuReturnValue => {
-        //         if(fuReturnValue.present) next();
-        //         else{
-        //             const response = new Response(null,"User login details verification failed", 400, "unregistered_email", 400)
-        //             res.status(response.statusCode).json(response.getResponse());
-        //         }
-        //     })
-        //     .catch(err => {
-        //         const response = new Response(null,"User login details verification failed", 500, "internal_server_error", 500)
-        //         res.status(response.statusCode).json(response.getResponse());
-        //         throw new Error(err);
-        //     })
-        // }else{
-        //     userService.findUserByUsername(req.body.username)
-        //     .then(fuReturnValue => {
-        //         if(fuReturnValue.present) next();
-        //         else{
-        //             //TODO: Correct status code and internal code
-        //             const response = new Response(null,"login details verification failed", 400, "unregistered_username", 400)
-        //             res.status(response.statusCode).json(response.getResponse());
-        //         }
-        //     })
-        //     .catch(err => {
-        //         const response = new Response(null,"login details verification failed", 500, "internal_server_error", 500)
-        //         res.status(response.statusCode).json(response.getResponse());
-        //         throw new Error(err);
-        //     })
-        // }
+        // next();
+        if(req.isEmail){
+            userService.findUserByEmailAddress(req.body.username.toLowerCase())
+            .then(fuReturnValue => {
+                if(fuReturnValue.present) return next();
+                throw new Error('unregistered_email');
+                // else{
+                //     const response = new Response(null,"User login details verification failed", 400, "unregistered_email", 400)
+                //     res.status(response.statusCode).json(response.getResponse());
+                // }
+            })
+            .catch(err => {
+                if(err instanceof ApplicationError) return next(err);
+                let caughtError;
+                if(err.message == 'unregistered_email'){
+                    caughtError = new definedErrors.UserDoesNotExist();
+                    caughtError.setAdditionalDetails("Unregistered email in request body during /userLoginDetails");
+                    return next(caughtError);
+                }
+                caughtError = new definedErrors.InternalServerError();
+                caughtError.setAdditionalDetails(error);
+                return next(caughtError);
+            })
+        }else{
+            userService.findUserByUsername(req.body.username)
+            .then(fuReturnValue => {
+                if(fuReturnValue.present) next();
+                throw new Error('unregistered_username');
+            })
+            .catch(err => {
+                if(err instanceof ApplicationError) return next(err);
+                let caughtError;
+                if(err.message == 'unregistered_username'){
+                    caughtError = new definedErrors.UserDoesNotExist();
+                    caughtError.setAdditionalDetails("Unregistered username in request body during /userLoginDetails");
+                    return next(caughtError);
+                }
+                caughtError = new definedErrors.InternalServerError();
+                caughtError.setAdditionalDetails(error);
+                return next(caughtError);
+            })
+        }
     },
     c(authController.userLoginDetails, (req, res, next) => [req.body.client_id,req.body.username,req.body.service,req.isEmail]));
 
@@ -75,17 +106,19 @@ module.exports = (router, app) => {
         clientService.checkClientExistenceById(req.body.client_id)
         .then(exists => {
             if(exists) return next();
-            throw 'Incorrect Client Id';
+            throw new Error('Incorrect Client Id');
         })
         .catch(error => {
-            if(error == "Incorrect Client Id"){
-                next("Incorrect Client Id")
-                const response = new Response(null,"Resend email otp failed", 400, "incorrect_client", 400)
-                return res.status(response.statusCode).json(response.getResponse());
+            if(err instanceof ApplicationError) return next(err);
+            let caughtError;
+            if(error.message == "Incorrect Client Id"){
+                caughtError = new definedErrors.IncorrectClientId();
+                caughtError.setAdditionalDetails("Incorrect client id sent in body during /mobileOTPLogin");
+                return next(caughtError);
             }
-            next(error);
-            const response = new Response(null,"Resend email otp failed", 500, "internal_server_error", 500)
-            return res.status(response.statusCode).json(response.getResponse());
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return next(caughtError);
         })
     }, 
     c(authController.resendEmailOTP, (req, res, next) => [req.body.otpId]));
@@ -96,20 +129,19 @@ module.exports = (router, app) => {
         clientService.checkClientExistenceById(req.body.client_id)
         .then(exists => {
             if(exists) return next();
-            throw 'Incorrect Client Id';
+            throw new Error('Incorrect Client Id');
         })
         .catch(error => {
-            if(error == "Incorrect Client Id"){
-                const errorOccured = new error.IncorrectClientId();
-                // errorOccured.setMessage("User registration details addition failed - Unregistered user")
-                return next(errorOccured);
-                // next("Incorrect Client Id")
-                // const response = new Response(null,"Mobile otp login verification failed", 400, "incorrect_client", 400)
-                // return res.status(response.statusCode).json(response.getResponse());
+            if(err instanceof ApplicationError) return next(err);
+            let caughtError;
+            if(error.message == "Incorrect Client Id"){
+                caughtError = new definedErrors.IncorrectClientId();
+                caughtError.setAdditionalDetails("Incorrect client id sent in body during /mobileOTPLogin");
+                return next(caughtError);
             }
-            return next(error);
-            // const response = new Response(null,"Mobile otp login verification failed", 500, "internal_server_error", 500)
-            // return res.status(response.statusCode).json(response.getResponse());
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return next(caughtError);
         })
     },
     (req, res, next) => {
@@ -125,15 +157,19 @@ module.exports = (router, app) => {
             userService.findUserByEmailAddress(req.body.username.toLowerCase())
             .then(fuReturnValue => {
                 if(fuReturnValue.present) next();
-                else throw "Unregistered user"
+                else throw new Error("Unregistered user")
             })
             .catch(err => {
-                if(err == "Unregistered user"){
-                    const errorOccured = new error.UserDoesNotExist();
-                    errorOccured.setMessage("User registration details addition failed - Unregistered user")
-                    return next(errorOccured);
+                if(err instanceof ApplicationError) return next(err);
+                let caughtError;
+                if(error.message == "Unregistered user"){
+                    caughtError = new definedErrors.UserDoesNotExist();
+                    caughtError.setAdditionalDetails("Unregistered email in request body during /mobileOTPLogin");
+                    return next(caughtError);
                 }
-                return next(err);
+                caughtError = new definedErrors.InternalServerError();
+                caughtError.setAdditionalDetails(error);
+                return next(caughtError);
                 // const response = new Response(null,"User registration details addition failed", 500, "internal_server_error", 500)
                 // res.status(response.statusCode).json(response.getResponse());
                 // throw new Error(err);
@@ -142,20 +178,19 @@ module.exports = (router, app) => {
             userService.findUserByUsername(req.body.username)
             .then(fuReturnValue => {
                 if(fuReturnValue.present) next();
-                else{
-                    throw "Unregistered user"
-                    //TODO: Correct status code and internal code
-                    // const response = new Response(null,"User registration details addition failed", 400, "unregistered_username", 400)
-                    // res.status(response.statusCode).json(response.getResponse());
-                }
+                else throw new Error("Unregistered user")
             })
             .catch(err => {
+                if(err instanceof ApplicationError) return next(err);
+                let caughtError;
                 if(err == "Unregistered user"){
-                    const errorOccured = new error.UserDoesNotExist();
-                    errorOccured.setMessage("User registration details addition failed - Unregistered user")
-                    return next(errorOccured);
+                    caughtError = new definedErrors.UserDoesNotExist();
+                    caughtError.setMessage("Unregistered username in request body during /mobileOTPLogin")
+                    return next(caughtError);
                 }
-                return next(err);
+                caughtError = new definedErrors.InternalServerError();
+                caughtError.setAdditionalDetails(error);
+                return next(caughtError);
                 // const response = new Response(null,"User registration details addition failed", 500, "internal_server_error", 500)
                 // res.status(response.statusCode).json(response.getResponse());
                 // throw new Error(err);

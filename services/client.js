@@ -1,6 +1,7 @@
 const cn = require('../utils/common');
 const Client = require('../models/Client');
-const error = require('../errors');
+const definedErrors = require('../errors');
+const ApplicationError = definedErrors.ApplicationError;
 
 exports.getClientSecret = (id) => {
     return new Promise((resolve, reject) => {
@@ -18,14 +19,16 @@ exports.getClientSecret = (id) => {
             throw new Error("Duplicate entries found for given client id - ", id);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
             }
-            const caughtError = new definedErrors.InternalServerError();
+            caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
         });
@@ -48,14 +51,16 @@ exports.getClient = (id) => {
             throw new Error("Duplicate entries found for given client id - ", id);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
             }
-            const caughtError = new definedErrors.InternalServerError();
+            caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
         });
@@ -78,16 +83,42 @@ exports.getClientGrantType = (id) => {
             throw new Error("Duplicate entries found for given client id - ", id);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
             }
-            const caughtError = new definedErrors.InternalServerError();
+            caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
+        });
+    })
+}
+
+exports.checkClientExistenceById = (id) => {
+    return new Promise((resolve, reject) => {
+        Client.findCountrForId(id)
+        .then(([rows,fields]) => {
+          const count = rows[0].count;
+          if(count == 1) return resolve(true);
+          else if(count == 0) return resolve(false);
+          return reject ("Duplicate entries found for client id -", id)
+        })
+        .catch(error => {
+          if(error instanceof ApplicationError) return reject(error);
+          let caughtError;
+          if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return reject(caughtError);
+          }
+          caughtError = new definedErrors.InternalServerError();
+          caughtError.setAdditionalDetails(error);
+          return reject(caughtError);
         });
     })
 }

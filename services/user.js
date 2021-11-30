@@ -7,7 +7,6 @@ exports.findUserByEmailAddress = (email) => {
         User.findByEmail(email)
         .then(([rows,fields]) => {
             let returnValue = {};
-            let caughtError;
             if(rows.length == 1){
                 returnValue.present = true;
                 returnValue.data = rows[0]
@@ -16,21 +15,24 @@ exports.findUserByEmailAddress = (email) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            const caughtError = new definedErrors.InternalServerError();
-            caughtError.setAdditionalDetails("Duplicate entries found for given email - ", email);
-            return reject(caughtError);
+            throw new Error("Duplicate entries found for given email - ", email)
+            // caughtError = new definedErrors.InternalServerError();
+            // caughtError.setAdditionalDetails("Duplicate entries found for given email - ", email);
+            // return reject(caughtError);
             // caughtError = error.InternalServerError();
             // return reject("Duplicate entries found for given email - ", email);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
+            let caughtError;
             if(error.sqlMessage){
-                const caughtError = new definedErrors.DatabaseServerError();
+                caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
                 return reject(caughtError);
             //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             //   error.message = "Database server error";
             }
-            const caughtError = new definedErrors.InternalServerError();
+            caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
         });
@@ -50,12 +52,14 @@ exports.findUserByUsername = (username) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            const caughtError = new definedErrors.InternalServerError();
-            caughtError.setAdditionalDetails("Duplicate entries found for given username - "+username);
-            return reject(caughtError);
+            throw new Error("Duplicate entries found for given username - "+username)
+            // const caughtError = new definedErrors.InternalServerError();
+            // caughtError.setAdditionalDetails("Duplicate entries found for given username - "+username);
+            // return reject(caughtError);
             // return reject("Duplicate entries found for given email - ", email);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
             if(error.sqlMessage){
                 const caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
@@ -84,9 +88,11 @@ exports.findUserEmailByUsername = (username) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            return reject("Duplicate entries found for given username - ", username);
+            throw new Error("Duplicate entries found for given username - ", username)
+            // return reject("Duplicate entries found for given username - ", username);
         })
         .catch(error => {
+            if(error instanceof ApplicationError) return reject(error);
             if(error.sqlMessage){
                 const caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
@@ -119,7 +125,7 @@ exports.insertNewUser = (firstName, middleName, lastName, email, username, passw
             else return resolve(userId);
         })
         .catch(error => {
-            console.log(error)
+            if(error instanceof ApplicationError) return reject(error);
             if(error.sqlMessage){
                 const caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);

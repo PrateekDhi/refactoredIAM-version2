@@ -33,8 +33,6 @@ const handlingErrorsMiddleware =  require('./middlewares/error');
 const errorHandler = require('./utils/handlers/error');
 require('express-async-errors')
 
-const logger = require('./logs/logger').createLogger
-
 // get the unhandled rejection and throw it to another fallback handler we already have.
 process.on('unhandledRejection', (reason, promise) => {
     throw reason;
