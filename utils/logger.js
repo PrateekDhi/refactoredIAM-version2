@@ -24,7 +24,18 @@ const customLevels = {
     },
 };
 
-const formatter = winston.format.combine(
+const fileFormatter = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+  winston.format.splat(),
+  winston.format.printf((info) => {
+    const { timestamp, level, message, ...meta } = info;
+    return `${timestamp} [${level}]: ${message} ${
+      Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''
+    }`;
+  }),
+);
+
+const consoleFormatter = winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.splat(),
@@ -41,12 +52,12 @@ class Logger {
     constructor() {
       //TODO: Check why new log files are not created while the server is running already, since we need to created log file on daily basis.
       const saveToFileTransport = new winston.transports.File({
-        format: formatter,
+        format: fileFormatter,
         filename: `logs/error_${today}.log`,
         level: 'error',
       });
       const consoleLogTransport = new winston.transports.Console({
-        format: formatter,
+        format: consoleFormatter,
       });
       let transports;
       if(config.node_env === 'production') transports = [saveToFileTransport];
