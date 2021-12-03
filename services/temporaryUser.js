@@ -63,6 +63,23 @@ exports.findTemporaryUserById = (id) => {
 **/
 const generateTemporaryUserId = () => cn.asyncGenerateRandomId(6);
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert a new temporary user
+ * @param {string} firstName - First name given by user
+ * @param {string} lastName - Last name given by user
+ * @param {string} email - Email given by user
+ * @param {string} password - Password given by user
+ * @param {string} countryCode - Country code for user's phone number
+ * @param {string} phoneNumber - Phone number given by user
+ * @param {string} client_id - Client id of the client application which initiated this process
+ * @param {string} service - The service associated with this process(IAM, Developer, Device management)
+ * @returns {Promise} - Promise object represents a string which is the inserted id of the temporary user
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.insertNewTemporaryUser = (firstName, lastName, email, password, countryCode, phoneNumber, client_id, service) => {
     return new Promise((resolve, reject) => {
       let temporaryUserId;
@@ -99,6 +116,16 @@ exports.insertNewTemporaryUser = (firstName, lastName, email, password, countryC
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to check a temporary user's existence
+ * @param {string} id - Temporary user's id
+ * @returns {Promise} - true if temporary user exists, false otherwise
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.checkTemporaryUserExistence = (id) => {
   return new Promise((resolve, reject) => {
     TemporaryUser.findCountrForId(id)
@@ -130,6 +157,16 @@ exports.checkTemporaryUserExistence = (id) => {
   })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to delete temporary user id from database
+ * @param {string} id - Temporary user's id
+ * @returns {Promise} - Promise object represents boolean true if deleted successfully
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.deleteTemporaryUserById = (id) => {
   return new Promise((resolve, reject) => {
     TemporaryUser.deleteById(id)

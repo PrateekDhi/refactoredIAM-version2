@@ -201,8 +201,7 @@ exports.getEmailOTPDataById = (id) => {
  * @author Prateek Shukla
  * @description The function is used to delete an email otp entry from database
  * @param {string} id - OTP entry's id
- * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
- * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @returns {Promise} - Promise object represents boolean true if deleted successfully
  * @throws Database server error, Internal server error
  * @todo none
  * 

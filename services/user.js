@@ -2,6 +2,17 @@ const cn = require('../utils/common');
 const definedErrors = require('../errors');
 const User = require('../models/User');
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get a user's complete details given his email
+ * @param {string} email - User's email
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.findUserByEmailAddress = (email) => {
     return new Promise((resolve, reject) => {
         User.findByEmail(email)
@@ -39,6 +50,17 @@ exports.findUserByEmailAddress = (email) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get a user's complete details given his username
+ * @param {string} username - User's username
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.findUserByUsername = (username) => {
     return new Promise((resolve, reject) => {
         User.findByUsername(username)
@@ -75,6 +97,17 @@ exports.findUserByUsername = (username) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get a user's email given his username
+ * @param {string} username - User's username
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.findUserEmailByUsername = (username) => {
     return new Promise((resolve, reject) => {
         User.findEmailByUsername(username)
@@ -108,6 +141,30 @@ exports.findUserEmailByUsername = (username) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert a new temporary user
+ * @param {string} firstName - First name given by user
+ * @param {string} middleName - Middle name given by user
+ * @param {string} lastName - Last name given by user
+ * @param {string} email - Email given by user
+ * @param {string} username - Username given by user
+ * @param {string} password - Password given by user
+ * @param {string} countryCode - Country code for user's phone number
+ * @param {string} phoneNumber - Phone number given by user
+ * @param {string} dateOfBirth - String representing Date of birth given by user
+ * @param {string} gender - Gender given by user
+ * @param {number} phoneNumberVerficationStatus - Phone number verification denotes whether the given phone number is verified or not.
+ * 1 denotes verified, while 0 denotes unverified. By default at the time of creation it is always set to 0
+ * @param {string} usingDefaultUsername - Using default username denotes whether the username being used right now is default system generated username
+ * or user chosen username. 1 denotes user is using system generated username while 0 denotes using chosen username. By default value is always 1 at the time
+ * of creation
+ * @returns {Promise} - Promise object represents a string which is the inserted id of the user
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.insertNewUser = (firstName, middleName, lastName, email, username, password, countryCode, phoneNumber, dateOfBirth, gender, phoneNumberVerficationStatus, usingDefaultUsername) => {
     return new Promise((resolve, reject) => {
         let userId;
