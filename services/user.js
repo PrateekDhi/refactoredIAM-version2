@@ -231,4 +231,14 @@ exports.checkUserExistenceByUsername = (username) => {
 
 //Local functions
 
-const generateUserId = () => cn.asyncGenerateRandomId(8).then((tempId) => tempId);
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to generate a new user id
+ * @param - none
+ * @returns {Promise} - Pending promise that will be give the id
+ * @throws none
+ * @todo none
+ * 
+**/
+const generateUserId = () => cn.asyncGenerateRandomId(8);
