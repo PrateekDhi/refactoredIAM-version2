@@ -1,3 +1,20 @@
+/**
+ *
+ * file - error.js - The error handler class
+ *
+ * @author     Prateek Shukla
+ * @version    0.1.0
+ * @created    25/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - Error handler is the common error handler used accorss the server.
+ *
+ *
+ * 25/11/2021 - PS - Created
+ * 
+**/
+
 const serverErrors = require('../../errors');
 const logger = require('../logger');
 

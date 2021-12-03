@@ -7,7 +7,7 @@
  * @copyright  Dhi Technologies
  * @license    For use by Dhi Technologies applications
  *
- * Description : Controller handler is the common handler used by all routes.
+ * @description - Controller handler is the common handler used by all routes.
  *
  *
  * 10/11/2021 - PS - Created
