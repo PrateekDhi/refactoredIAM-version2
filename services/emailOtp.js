@@ -6,6 +6,17 @@ const definedErrors = require('../errors');
 
 sgMail.setApiKey(config.email_gateway_api_key);
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to send otp to an email
+ * @param {string} email - Email of the client
+ * @returns {Promise} - Promise object represents either javascript object 
+ * {message: <Mesasge that can be used for display>, eOTP: <The OTP that was sent to the email>}
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.sendOTP = (email) => {
     // console.log(config.email_gateway_api_key)
     // console.log(sgMail)
@@ -26,12 +37,9 @@ exports.sendOTP = (email) => {
         sgMail.send(eMsg,(error,result) => {
             // console.log('SMS gateway callback')
             if(error){
-                // console.log('ERROR WHILE SENDING EMAIL TO USER')
-                // console.log(error)
-                let obj = {};
-                obj.error = "Email gateway error - "+JSON.stringify(error);
-                obj.message = "Email gateway error";
-                reject(obj);           
+                const caughtError = new definedErrors.BadGateway();
+                caughtError.setAdditionalDetails(`Email gateway error - ${error}`);
+                return reject(caughtError);         
             }
             else{
                 // console.log('SENDING RESPONSE OF EMAIL OTP SENT')
@@ -44,13 +52,27 @@ exports.sendOTP = (email) => {
     });
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert a new email otp
+ * @param {string} userId - Id of the user to whom the otp was sent
+ * @param {string} otp - The otp that was sent to the user
+ * @param {string} type - Type of process - login/registration
+ * @param {string} service - Service associated with this process - IAM/Developer/Device Management
+ * @param {string} attemptNumber - The current attempt number for this otp sending cycle(Max allowed 3 right now)
+ * @returns {Promise} - Promise object represents a string which is the inserted id of the email otp
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.insertNewEmailOTP = (userId,otp,type,service,attemptNumber) => {
     return new Promise((resolve, reject) => {
         let assignedOTPId;
         generateEmailOTPId()
         .then(otpId => {
             assignedOTPId = otpId;
-            const otpExpirationTime = getEmailOTPExpirationTime();
+            const otpExpirationTime = getEmailOTPExpirationTime(Date.now());
             const emailOTP = new EmailOTP(otpId, otp, userId, type, otpExpirationTime, service, attemptNumber);
             return emailOTP.save();
         })
@@ -77,6 +99,18 @@ exports.insertNewEmailOTP = (userId,otp,type,service,attemptNumber) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get email otp complete data given the id and otp 
+ * @param {string} id - OTP entry's id
+ * @param {string} otp - OTP that was sent
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.getEmailOTPByUserIdAndOtp = (id,otp) => {
     return new Promise((resolve, reject) => {
         EmailOTP.findEmailOtpByUserIdAndOtp(id,otp)
@@ -114,6 +148,17 @@ exports.getEmailOTPByUserIdAndOtp = (id,otp) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get email otp complete data given the id
+ * @param {string} id - OTP entry's id
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.getEmailOTPDataById = (id) => {
     return new Promise((resolve, reject) => {
         EmailOTP.findById(id)
@@ -151,6 +196,17 @@ exports.getEmailOTPDataById = (id) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to delete an email otp entry from database
+ * @param {string} id - OTP entry's id
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.deleteEmailOTPById = (id) => {
     return new Promise((resolve, reject) => {
         EmailOTP.deleteById(id)
@@ -180,10 +236,30 @@ exports.deleteEmailOTPById = (id) => {
 }
 
 //Local functions
+
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to generate a new email otp entry id
+ * @param - none
+ * @returns {String} - A string representing the usable entry id
+ * @throws none
+ * @todo none
+ * 
+**/
 const generateEmailOTPId = () => cn.asyncGenerateRandomId(6).then((otpId) => otpId);
 
-const getEmailOTPExpirationTime = () => {
-    let currentTime = Date.now();
-    let expiryTime = currentTime + config.email_otp.validity_duration;
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get the system defined expiration time for an otp given the creation time of the otp.
+ * @param {number} creationTime  - The creation time of the otp in millsecond timestamp format
+ * @returns {Number} - Millisecond timestamp representing the expiration time for an email otp
+ * @throws none
+ * @todo none
+ * 
+**/
+const getEmailOTPExpirationTime = (creationTime) => {
+    let expiryTime = creationTime + config.email_otp.validity_duration;
     return expiryTime;
 }

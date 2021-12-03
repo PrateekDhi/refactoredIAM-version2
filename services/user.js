@@ -108,8 +108,6 @@ exports.findUserEmailByUsername = (username) => {
     })
 }
 
-const generateUserId = () => cn.asyncGenerateRandomId(8).then((tempId) => tempId);
-
 exports.insertNewUser = (firstName, middleName, lastName, email, username, password, countryCode, phoneNumber, dateOfBirth, gender, phoneNumberVerficationStatus, usingDefaultUsername) => {
     return new Promise((resolve, reject) => {
         let userId;
@@ -139,3 +137,41 @@ exports.insertNewUser = (firstName, middleName, lastName, email, username, passw
         });
     })
 }
+
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to check a user's existence by username
+ * @param {string} username - User's username
+ * @returns {Promise} - true if user exists, false otherwise
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
+exports.checkUserExistenceByUsername = (username) => {
+    return new Promise((resolve, reject) => {
+        User.findCountForUsername(username)
+        .then(([rows,fields]) => {
+          const count = rows[0].count;
+          if(count == 1) return resolve(true);
+          else if(count == 0) return resolve(false);
+          return reject ("Duplicate entries found for user's username -", username)
+        })
+        .catch(error => {
+          if(error instanceof ApplicationError) return reject(error);
+          let caughtError;
+          if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return reject(caughtError);
+          }
+          caughtError = new definedErrors.InternalServerError();
+          caughtError.setAdditionalDetails(error);
+          return reject(caughtError);
+        });
+    })
+}
+
+//Local functions
+
+const generateUserId = () => cn.asyncGenerateRandomId(8).then((tempId) => tempId);

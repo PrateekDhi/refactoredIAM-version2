@@ -3,6 +3,17 @@ const Client = require('../models/Client');
 const definedErrors = require('../errors');
 const ApplicationError = definedErrors.ApplicationError;
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get a client's secret
+ * @param {string} id - Client's id
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.getClientSecret = (id) => {
     return new Promise((resolve, reject) => {
         Client.findSecretById(id)
@@ -35,6 +46,17 @@ exports.getClientSecret = (id) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get a client's complete details
+ * @param {string} id - Client's id
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.getClient = (id) => {
     return new Promise((resolve, reject) => {
         Client.findById(id)
@@ -67,6 +89,17 @@ exports.getClient = (id) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get grant types allowed for the client
+ * @param {string} id - Client's id
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.getClientGrantType = (id) => {
     return new Promise((resolve, reject) => {
         Client.findGrantTypeById(id)
@@ -99,6 +132,16 @@ exports.getClientGrantType = (id) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to check a client's existence
+ * @param {string} id - Client's id
+ * @returns {Promise} - true if client exists, false otherwise
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.checkClientExistenceById = (id) => {
     return new Promise((resolve, reject) => {
         Client.findCountrForId(id)

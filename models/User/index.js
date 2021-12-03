@@ -56,4 +56,8 @@ module.exports = class User {
   static findEmailByUsername(username){
     return db.execute('SELECT email FROM user WHERE user.username = ?', [username]);
   }
+
+  static findCountForUsername(username){
+    return db.execute('SELECT COUNT(*) FROM user WHERE user.username = ?', [username]);
+  }
 };
