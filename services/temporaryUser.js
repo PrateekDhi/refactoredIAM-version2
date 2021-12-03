@@ -3,6 +3,17 @@ const definedErrors = require('../errors');
 const TemporaryUser = require('../models/TemporaryUser');
 // const { Console } = require('winston/lib/winston/transports');
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get a temporary user's complete details given id
+ * @param {string} id - Temporary user's db id
+ * @returns {Promise} - Promise object represents either javascript object {present: false} if entity is not present or 
+ * javascript object {present: true, data: <Data that was requested from this function>} if entity is present
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.findTemporaryUserById = (id) => {
   return new Promise((resolve, reject) => {
     TemporaryUser.findById(id)
@@ -40,7 +51,17 @@ exports.findTemporaryUserById = (id) => {
   })
 }
 
-const generateTemporaryUserId = () => cn.asyncGenerateRandomId(6).then((tempId) => tempId);
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to generate a new temporary user id
+ * @param - none
+ * @returns {Promise} - Pending promise that will be give the id
+ * @throws none
+ * @todo none
+ * 
+**/
+const generateTemporaryUserId = () => cn.asyncGenerateRandomId(6);
 
 exports.insertNewTemporaryUser = (firstName, lastName, email, password, countryCode, phoneNumber, client_id, service) => {
     return new Promise((resolve, reject) => {

@@ -242,12 +242,12 @@ exports.deleteEmailOTPById = (id) => {
  * @author Prateek Shukla
  * @description The function is used to generate a new email otp entry id
  * @param - none
- * @returns {String} - A string representing the usable entry id
+ * @returns {Promise} - Pending promise that will be give the id
  * @throws none
  * @todo none
  * 
 **/
-const generateEmailOTPId = () => cn.asyncGenerateRandomId(6).then((otpId) => otpId);
+const generateEmailOTPId = () => cn.asyncGenerateRandomId(6);
 
 /**
  * 

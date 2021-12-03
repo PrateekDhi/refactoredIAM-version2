@@ -5,6 +5,20 @@ const AccessToken = require('../models/AccessToken');
 const RefreshToken = require('../models/RefreshToken');
 const AuthorizationCode = require('../models/AuthorizationCode');
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert new access token to database.
+ * @param {string} token - Access token
+ * @param {string} userId - Id of the user for whom the token is generated
+ * @param {string} clientId - Id of the client application who is handling the user
+ * @param {string} accessTokenExpiresAt - Expiration time in general date time format as per oauth2-server npm package model
+ * @param {string} scope - Scope assigned for this token
+ * @returns {String} - A string representing the token entry id of the inserted token
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.insertNewAccessToken = (token,userId,clientId,accessTokenExpiresAt,scope) => {    
     return new Promise((resolve, reject) => {
         const tokenId = generateTokenEntryId();
@@ -33,6 +47,20 @@ exports.insertNewAccessToken = (token,userId,clientId,accessTokenExpiresAt,scope
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert new refresh token to database.
+ * @param {string} token - Access token
+ * @param {string} userId - Id of the user for whom the token is generated
+ * @param {string} clientId - Id of the client application who is handling the user
+ * @param {string} accessTokenExpiresAt - Expiration time in general date time format as per oauth2-server npm package model
+ * @param {string} scope - Scope assigned for this token
+ * @returns {String} - A string representing the token entry id of the inserted token
+ * @throws Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.insertNewRefreshToken = (token,userId,clientId,accessTokenExpiresAt,accessTokenId) => {    
     return new Promise((resolve, reject) => {
         const tokenId = generateTokenEntryId();
@@ -61,4 +89,14 @@ exports.insertNewRefreshToken = (token,userId,clientId,accessTokenExpiresAt,acce
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to generate an entry id for database entry of tokens.
+ * @param - none
+ * @returns {String} - A string representing a usable token entry id for token
+ * @throws none
+ * @todo none
+ * 
+**/
 const generateTokenEntryId = () => cn.generateRandomString(8);
