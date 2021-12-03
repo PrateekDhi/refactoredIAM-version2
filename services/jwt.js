@@ -10,7 +10,7 @@ const definedErrors = require('../errors');
  * @param {string} claims - OTP entry's id
  * @param {string} key - OTP that was sent
  * @param {string} algorithm - OTP that was sent
- * @returns {String} - A string representing the usable username
+ * @returns {String} - A string representing generated JWT
  * @throws Database server error, Internal server error
  * @todo testing
  * 
