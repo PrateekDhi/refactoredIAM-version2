@@ -12,6 +12,7 @@
  * NOTE - Do not change the name of the functions since they are defined as per oauth-server library reqirements
  *
  * 15/11/2021 - PS - Created
+ * 05/12/2021 - PS - Updated
  * 
 **/
 
@@ -95,33 +96,11 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return callback(caughtError);
-            // let err = {};
-            // if(error == "Incorrect client id"){
-            //     err = new InvalidClientError();
-            //     err.message = 'Invalid client credentials'
-            //     err.internalCode = 401
-            //     err.name = 'unauthorized'
-            //     err.statusCode = 401
-            // }else{
-            //     console.log('Error while using generateAccessToken in oauth model, Error -',error);
-            //     err = new ServerError();
-            //     err.message = 'Database server error';
-            //     err.internalCode = 503;
-            //     err.name = 'database_server_error';
-            // }
-            // return callback(err);
-            // throw new Error(error);
         })
     }else{
         const caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails("No id present for client or user in generateRefreshToken");
         return callback(caughtError);
-        // const err = new ServerError();
-        // err.message = 'Failed to generate token';
-        // err.internalCode = 500;
-        // err.name = 'internal_server_error';
-        // return callback(err);
-        // throw new Error("Absent client id or user id, cannot proceed");
     }
 }
 
@@ -170,22 +149,6 @@ exports.getClient = (clientId, clientSecret, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // if(error == 'Incorrect client id'){
-        //     const err = new InvalidClientError();
-        //     err.message = 'Invalid client credentials'
-        //     err.internalCode = 401
-        //     err.name = 'unauthorized'
-        //     err.statusCode = 401
-        //     return callback(err);
-        // }else{
-        //     console.log('Error while using getClient in oauth model, Error -',error);
-        //     //TODO: Separate handling for database errors
-        //     const err = new ServerError();
-        //     err.message = 'Internal server error';
-        //     err.internalCode = 500;
-        //     err.name = 'internal_server_error';
-        //     return callback(err);
-        // }
     })
 }
 
@@ -225,22 +188,6 @@ exports.grantTypeAllowed = (clientId, grantType, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // if(error == 'Incorrect client id'){
-        //     const err = new InvalidClientError();
-        //     err.message = 'Invalid client credentials'
-        //     err.internalCode = 401
-        //     err.name = 'unauthorized'
-        //     err.statusCode = 401
-        //     return callback(err);
-        // }else{
-        //     console.log('Error while using grantTypeAllowed in oauth model, Error -',error);
-        //     //TODO: Separate handling for database errors
-        //     const err = new ServerError();
-        //     err.message = 'Internal server error';
-        //     err.internalCode = 500;
-        //     err.name = 'internal_server_error';
-        //     return callback(err);
-        // }
     })
 }
 
@@ -419,13 +366,6 @@ exports.getUser = (username, password, callback) => {
                 const caughtError = new definedErrors.InvalidCredentials();
                 caughtError.setAdditionalDetails(`Invalid email otp sent, otp - ${password}`);
                 return callback(caughtError);
-                // console.log('Validation error -',validationResult.error);
-                // const err = new ServerError();
-                // err.message = 'Internal server error';
-                // err.internalCode = 500;
-                // err.name = 'internal_server_error';
-                // return callback(err);
-                // throw new Error(validationResult.error);
             }
         break;
 
@@ -454,35 +394,11 @@ exports.getUser = (username, password, callback) => {
                     caughtError = new definedErrors.InternalServerError();
                     caughtError.setAdditionalDetails(error);
                     return callback(caughtError);
-                    // if(error == "Invalid credentials"){
-                    //     const err = new InvalidGrantError();
-                    //     err.message = "Incorrect user credentials";
-                    //     err.internalCode = 456 //pre 400
-                    //     err.name = 'incorrect_password'
-                    //     err.statusCode = 400
-                    //     return callback(err)
-                    //     // throw new Error('Invalid user credentials');
-                    // }else{
-                    //     console.log('Error while using getUser in oauth model, Error -',error);
-                    //     //TODO: Separate handling for database errors and other specific errors
-                    //     const err = new ServerError();
-                    //     err.message = 'Internal server error';
-                    //     err.internalCode = 500;
-                    //     err.name = 'internal_server_error';
-                    //     return callback(err);
-                    // }
                 })
             }else{
                 const caughtError = new definedErrors.InvalidCredentials();
                 caughtError.setAdditionalDetails(`Invalid password sent, password - ${password}`);
                 return callback(caughtError);
-                // console.log('Validation error -',validationResult.error);
-                // const err = new ServerError();
-                // err.message = 'Internal server error';
-                // err.internalCode = 500;
-                // err.name = 'internal_server_error';
-                // return callback(err);
-                // throw new Error(validationResult.error);
             }
         break;
 
@@ -529,48 +445,11 @@ exports.getUser = (username, password, callback) => {
                     caughtError = new definedErrors.InternalServerError();
                     caughtError.setAdditionalDetails(error);
                     return callback(caughtError);
-                    // let err;
-                    // if(error == 'Invalid user id'){
-                    //     err = new ServerError();
-                    //     err.message = "User does not exist";
-                    //     err.internalCode = 453;
-                    //     err.statusCode = 401
-                    //     err.name = 'user_does_not_exist'
-                    // }else if(error == 'Expired otp received'){
-                    //     err = new InvalidGrantError();
-                    //     err.message = "OTP Expired";
-                    //     err.internalCode = 410;// previous code 400
-                    //     err.name = 'gone';
-                    //     err.statusCode = 410;
-                    //     mobileService.deleteOTP(otpId)
-                    //     .then(message => console.log(message))
-                    //     .catch(error => console.log("Error while deleting OTP - "+error));
-                    // }else if(error == 'Incorrect otp received'){
-                    //     err = new InvalidGrantError();
-                    //     err.message = "Incorrect OTP";
-                    //     err.internalCode = 455;
-                    //     err.statusCode = 401;// previous code 400
-                    //     err.name = 'incorrect_credentials'
-                    // }else{
-                    //     console.log('Error while using getUser in oauth model, Error -',error);
-                    //     err = new ServerError();
-                    //     err.message = 'Internal server error';
-                    //     err.internalCode = 500;
-                    //     err.name = 'internal_server_error';
-                    // }
-                    // return callback(err);
                 })
             }else{
                 const caughtError = new definedErrors.InvalidCredentials();
                 caughtError.setAdditionalDetails(`Invalid phone otp sent, otp - ${password}`);
                 return callback(caughtError);
-                // console.log('Validation error -',validationResult.error);
-                // const err = new ServerError();
-                // err.message = 'Internal server error';
-                // err.internalCode = 500;
-                // err.name = 'internal_server_error';
-                // return callback(err);
-                // throw new Error(validationResult.error);
             }
         break;
 
@@ -578,7 +457,6 @@ exports.getUser = (username, password, callback) => {
             const caughtError = new definedErrors.InternalServerError;
             caughtError.setAdditionalDetails(`The username was not properly concatinated with the method, given username - ${username}`);
             return callback(caughtError);
-            // throw new Error("Invalid grant when trying to get user in oauth model");
     }
 }
 
@@ -628,7 +506,6 @@ exports.saveToken = (token,client,user,callback) => {
                 user:{phoneNumberVerified:user.phoneNumberVerified,usingDefaultUsername:user.usingDefaultUsername,services:user.services}
             })
         }else if(client.clientType == 'thirdParty'){
-            //TODO: Handling third party client's access token when third party support starts
         }
     })
     .catch(error => {
@@ -642,14 +519,6 @@ exports.saveToken = (token,client,user,callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // console.log('Error while using saveToken in oauth model, Error -',error);
-        // //TODO: Separate handling for database errors
-        // const err = new ServerError();
-        // err.message = 'Internal server error';
-        // err.internalCode = 500;
-        // err.name = 'internal_server_error';
-        // return callback(err);
-        // // throw new Error(error);
     })
 }
 
@@ -697,14 +566,6 @@ exports.saveAuthorizationCode = (code, client, user, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // console.log('Error while using saveAuthorizationCode in oauth model, Error -',error);
-        // //TODO: Separate handling for database errors
-        // const err = new ServerError();
-        // err.message = 'Internal server error';
-        // err.internalCode = 500;
-        // err.name = 'internal_server_error';
-        // return callback(err);
-        // throw new Error(error);
     })
 }
 
@@ -773,26 +634,6 @@ exports.getAccessToken = (bearerToken, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // let err = {};
-        // if(error == 'Incorrect token'){
-        //     err = new InvalidTokenError();
-        //     err.message = 'Incorrect Token'
-        //     err.internalCode = 455 
-        //     err.name = 'incorrect_credentials'
-        //     err.statusCode = 401
-        // }else if(error == 'Invalid authorization data'){
-        //     err = new InvalidTokenError();
-        //     err.internalCode = 454 //previous code 400
-        //     err.name = 'invalid_authorization_data'
-        //     err.statusCode = 401
-        // }else{
-        //     console.log('Error while using getAccessToken in oauth model, Error -',error);
-        //     err = new ServerError();
-        //     err.message = 'Internal server error';
-        //     err.internalCode = 500;
-        //     err.name = 'internal_server_error';
-        // }   
-        // return callback(err);
     })
 }
 
@@ -857,26 +698,6 @@ exports.getRefreshToken = (refreshToken, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // let err = {};
-        // if(error == 'Incorrect token'){
-        //     err = new InvalidTokenError();
-        //     err.message = 'Incorrect Token'
-        //     err.internalCode = 455 
-        //     err.name = 'incorrect_credentials'
-        //     err.statusCode = 401
-        // }else if(error == 'Invalid authorization data'){
-        //     err = new InvalidTokenError();
-        //     err.internalCode = 454 //previous code 400
-        //     err.name = 'invalid_authorization_data'
-        //     err.statusCode = 401
-        // }else{
-        //     console.log('Error while using getRefreshToken in oauth model, Error -',error);
-        //     err = new ServerError();
-        //     err.message = 'Internal server error';
-        //     err.internalCode = 500;
-        //     err.name = 'internal_server_error';
-        // }   
-        // return callback(err);
     })
 }
 
@@ -933,21 +754,6 @@ exports.getAuthorizationCode = (authorizationCode, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // let err = {};
-        // if(error == 'Incorrect authorization code'){
-        //     err = new UnauthorizedRequestError();
-        //     err.message = 'Unauthorized'
-        //     err.internalCode = 401
-        //     err.name = 'unauthorized'
-        //     err.statusCode = 401
-        // }else{
-        //     console.log('Error while using getAuthorizationCode in oauth model, Error -',error);
-        //     err = new ServerError();
-        //     err.message = 'Internal server error';
-        //     err.internalCode = 500;
-        //     err.name = 'internal_server_error';
-        // }
-        // return callback(err);
     })
 }
 
@@ -980,13 +786,6 @@ exports.revokeToken = (token, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // console.log('Error while using revokeToken in oauth model, Error -',error);
-        // //TODO: Separate handling for database errors
-        // const err = new ServerError();
-        // err.message = 'Internal server error';
-        // err.internalCode = 500;
-        // err.name = 'internal_server_error';
-        // return callback(err);
     })
 }
 
@@ -1020,12 +819,5 @@ exports.revokeAuthorizationCode = (code, callback) => {
         caughtError = new definedErrors.InternalServerError();
         caughtError.setAdditionalDetails(error);
         return callback(caughtError);
-        // console.log('Error while using revokeAuthorizationCode in oauth model, Error -',error);
-        // //TODO: Separate handling for database errors
-        // const err = new ServerError();
-        // err.message = 'Internal server error';
-        // err.internalCode = 500;
-        // err.name = 'internal_server_error';
-        // return callback(err);
     })
 }
