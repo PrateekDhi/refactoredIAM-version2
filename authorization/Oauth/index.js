@@ -164,7 +164,7 @@ exports.getClient = (clientId, clientSecret, callback) => {
             return callback(caughtError);
         } else if(error.message == 'Incorrect client id'){
             caughtError = new definedErrors.IncorrectClientId();
-            caughtError.setAdditionalDetails(`Incorrect client id sent during generate refresh token, client - ${client}, user - ${user}`);
+            caughtError.setAdditionalDetails(`Incorrect client id sent during getClient, client - ${clientId}`);
             return callback(caughtError);
         }
         caughtError = new definedErrors.InternalServerError();
