@@ -22,6 +22,6 @@ exports.UndefinedRoute = require('./undefined_route');
 exports.UserAlreadyRegistered = require('./user_already_registered');
 exports.UserDoesNotExist = require('./user_does_not_exist');
 
-//Divisions of error
-exports.fatalErrors = [InternalServerError,DatabaseServerError]
+// //Divisions of error
+// exports.fatalErrors = [InternalServerError,DatabaseServerError]
 

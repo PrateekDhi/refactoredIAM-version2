@@ -15,13 +15,15 @@
  * 
 **/
 
-const InvalidGrantError = require('oauth2-server/lib/errors/invalid-grant-error');
-const ServerError = require('oauth2-server/lib/errors/server-error');
-const UnauthorizedRequestError = require('oauth2-server/lib/errors/unauthorized-request-error')
-const InvalidClientError = require('oauth2-server/lib/errors/invalid-client-error');
-const InvalidTokenError = require('oauth2-server/lib/errors/invalid-token-error');
+// const InvalidGrantError = require('oauth2-server/lib/errors/invalid-grant-error');
+// const ServerError = require('oauth2-server/lib/errors/server-error');
+// const UnauthorizedRequestError = require('oauth2-server/lib/errors/unauthorized-request-error')
+// const InvalidClientError = require('oauth2-server/lib/errors/invalid-client-error');
+// const InvalidTokenError = require('oauth2-server/lib/errors/invalid-token-error');
 
 const cn = require('../../utils/common');
+const definedErrors = require('../../errors');
+const ApplicationError = definedErrors.ApplicationError;
 
 //Services
 const oauthService = require('../../services/oauth');
@@ -79,29 +81,46 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
             }else throw new Error("Incorrect client id");
         })
         .catch((error) => {
-            let err = {};
-            if(error == "Incorrect client id"){
-                err = new InvalidClientError();
-                err.message = 'Invalid client credentials'
-                err.internalCode = 401
-                err.name = 'unauthorized'
-                err.statusCode = 401
-            }else{
-                console.log('Error while using generateAccessToken in oauth model, Error -',error);
-                err = new ServerError();
-                err.message = 'Database server error';
-                err.internalCode = 503;
-                err.name = 'database_server_error';
+            if(error instanceof ApplicationError) return callback(error);
+            let caughtError;
+            if(error.sqlMessage){
+                caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                return callback(caughtError);
+            } else if(error.message == 'Incorrect client id'){
+                caughtError = new definedErrors.IncorrectClientId();
+                caughtError.setAdditionalDetails(`Incorrect client id sent during generate refresh token, client - ${client}, user - ${user}`);
+                return callback(caughtError);
             }
-            return callback(err);
+            caughtError = new definedErrors.InternalServerError();
+            caughtError.setAdditionalDetails(error);
+            return callback(caughtError);
+            // let err = {};
+            // if(error == "Incorrect client id"){
+            //     err = new InvalidClientError();
+            //     err.message = 'Invalid client credentials'
+            //     err.internalCode = 401
+            //     err.name = 'unauthorized'
+            //     err.statusCode = 401
+            // }else{
+            //     console.log('Error while using generateAccessToken in oauth model, Error -',error);
+            //     err = new ServerError();
+            //     err.message = 'Database server error';
+            //     err.internalCode = 503;
+            //     err.name = 'database_server_error';
+            // }
+            // return callback(err);
             // throw new Error(error);
         })
     }else{
-        const err = new ServerError();
-        err.message = 'Failed to generate token';
-        err.internalCode = 500;
-        err.name = 'internal_server_error';
-        return callback(err);
+        const caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails("No id present for client or user in generateRefreshToken");
+        return callback(caughtError);
+        // const err = new ServerError();
+        // err.message = 'Failed to generate token';
+        // err.internalCode = 500;
+        // err.name = 'internal_server_error';
+        // return callback(err);
         // throw new Error("Absent client id or user id, cannot proceed");
     }
 }
@@ -137,22 +156,36 @@ exports.getClient = (clientId, clientSecret, callback) => {
         }else throw new Error('Incorrect client id')
     })
     .catch(error => {
-        if(error == 'Incorrect client id'){
-            const err = new InvalidClientError();
-            err.message = 'Invalid client credentials'
-            err.internalCode = 401
-            err.name = 'unauthorized'
-            err.statusCode = 401
-            return callback(err);
-        }else{
-            console.log('Error while using getClient in oauth model, Error -',error);
-            //TODO: Separate handling for database errors
-            const err = new ServerError();
-            err.message = 'Internal server error';
-            err.internalCode = 500;
-            err.name = 'internal_server_error';
-            return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        } else if(error.message == 'Incorrect client id'){
+            caughtError = new definedErrors.IncorrectClientId();
+            caughtError.setAdditionalDetails(`Incorrect client id sent during generate refresh token, client - ${client}, user - ${user}`);
+            return callback(caughtError);
         }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // if(error == 'Incorrect client id'){
+        //     const err = new InvalidClientError();
+        //     err.message = 'Invalid client credentials'
+        //     err.internalCode = 401
+        //     err.name = 'unauthorized'
+        //     err.statusCode = 401
+        //     return callback(err);
+        // }else{
+        //     console.log('Error while using getClient in oauth model, Error -',error);
+        //     //TODO: Separate handling for database errors
+        //     const err = new ServerError();
+        //     err.message = 'Internal server error';
+        //     err.internalCode = 500;
+        //     err.name = 'internal_server_error';
+        //     return callback(err);
+        // }
     })
 }
 
@@ -178,22 +211,36 @@ exports.grantTypeAllowed = (clientId, grantType, callback) => {
         }else throw new Error('Incorrect client id')
     })
     .catch(error => {
-        if(error == 'Incorrect client id'){
-            const err = new InvalidClientError();
-            err.message = 'Invalid client credentials'
-            err.internalCode = 401
-            err.name = 'unauthorized'
-            err.statusCode = 401
-            return callback(err);
-        }else{
-            console.log('Error while using grantTypeAllowed in oauth model, Error -',error);
-            //TODO: Separate handling for database errors
-            const err = new ServerError();
-            err.message = 'Internal server error';
-            err.internalCode = 500;
-            err.name = 'internal_server_error';
-            return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        } else if(error.message == 'Incorrect client id'){
+            caughtError = new definedErrors.IncorrectClientId();
+            caughtError.setAdditionalDetails(`Incorrect client id sent during generate refresh token, client - ${client}, user - ${user}`);
+            return callback(caughtError);
         }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // if(error == 'Incorrect client id'){
+        //     const err = new InvalidClientError();
+        //     err.message = 'Invalid client credentials'
+        //     err.internalCode = 401
+        //     err.name = 'unauthorized'
+        //     err.statusCode = 401
+        //     return callback(err);
+        // }else{
+        //     console.log('Error while using grantTypeAllowed in oauth model, Error -',error);
+        //     //TODO: Separate handling for database errors
+        //     const err = new ServerError();
+        //     err.message = 'Internal server error';
+        //     err.internalCode = 500;
+        //     err.name = 'internal_server_error';
+        //     return callback(err);
+        // }
     })
 }
 
@@ -208,7 +255,8 @@ exports.grantTypeAllowed = (clientId, grantType, callback) => {
  * @param {requestCallback} callback - The callback that handles the response.
  * @returns {callback} - Callback function call with the user's data object, handled by oauth-server library
  * @throws Invalid User Id, Invalid Temporary User Id, Gone(OTP expired), Incorrect credentials, Internal server error, Database server error
- * @todo none
+ * @todo 1) Might need to create separate error for incorrect temporary user id
+ *       2) Handle default case in inner switch case
  * 
 **/
 exports.getUser = (username, password, callback) => {
@@ -304,52 +352,79 @@ exports.getUser = (username, password, callback) => {
                                 break;
 
                                 default:
-                                    //TODO: Handle default case
                             }
                         }else throw new Error('Expired otp received');
                     }else throw new Error('Incorrect email otp received');
                 })
                 .catch(error => {
-                    console.log(error)
-                    let err;
-                    if(error == 'Invalid user id' || error == 'Invalid temporary user id'){
-                        err = new ServerError();
-                        err.message = "User does not exist";
-                        err.internalCode = 453;
-                        err.statusCode = 401
-                        err.name = 'user_does_not_exist'
-                    }else if(error == 'Expired otp received'){
-                        err = new InvalidGrantError();
-                        err.message = "OTP Expired";
-                        err.internalCode = 410;// previous code 400
-                        err.name = 'gone';
-                        err.statusCode = 410;
-                        emailService.deleteEmailOTP(otpId)
-                        .then(message => console.log(message))
-                        .catch(error => console.log("Error while deleting OTP - "+error));
-                    }else if(error == 'Incorrect email otp received'){
-                        err = new InvalidGrantError();
-                        err.message = "Incorrect OTP";
-                        err.internalCode = 455;
-                        err.statusCode = 401;// previous code 400
-                        err.name = 'incorrect_credentials'
-                    }else{
-                        console.log('Error while using getUser in oauth model, Error -',error);
-                        //TODO: Separate handling for database errors
-                        err = new ServerError();
-                        err.message = 'Internal server error';
-                        err.internalCode = 500;
-                        err.name = 'internal_server_error';
+                    if(error instanceof ApplicationError) return callback(error);
+                    let caughtError;
+                    if(error.sqlMessage){
+                        caughtError = new definedErrors.DatabaseServerError();
+                        caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                        return callback(caughtError);
+                    } else if(error.message == 'Invalid temporary user id'){
+                        caughtError = new definedErrors.UserDoesNotExist();
+                        caughtError.setAdditionalDetails(`Credentials sent are - username - ${username}, password - ${password}`);
+                        return callback(caughtError);
+                    } else if(error.message == 'Invalid user id'){
+                        caughtError = new definedErrors.UserDoesNotExist();
+                        caughtError.setAdditionalDetails(`Credentials sent are - username - ${username}, password - ${password}`);
+                        return callback(caughtError);
+                    } else if(error.message == 'Expired otp received') {
+                        caughtError = new definedErrors.Gone();
+                        caughtError.setMessage('OTP expired');
+                        return callback(caughtError);
+                    } else if(error.message == 'Incorrect email otp received') {
+                        caughtError = new definedErrors.IncorrectCredentials();
+                        caughtError.setMessage('Incorrect email otp received');
+                        return callback(caughtError);
                     }
-                    return callback(err);
+                    caughtError = new definedErrors.InternalServerError();
+                    caughtError.setAdditionalDetails(error);
+                    return callback(caughtError);
+                    // console.log(error)
+                    // let err;
+                    // if(error == 'Invalid user id' || error == 'Invalid temporary user id'){
+                    //     err = new ServerError();
+                    //     err.message = "User does not exist";
+                    //     err.internalCode = 453;
+                    //     err.statusCode = 401
+                    //     err.name = 'user_does_not_exist'
+                    // }else if(error == 'Expired otp received'){
+                    //     err = new InvalidGrantError();
+                    //     err.message = "OTP Expired";
+                    //     err.internalCode = 410;// previous code 400
+                    //     err.name = 'gone';
+                    //     err.statusCode = 410;
+                    //     emailService.deleteEmailOTP(otpId)
+                    //     .then(message => console.log(message))
+                    //     .catch(error => console.log("Error while deleting OTP - "+error));
+                    // }else if(error == 'Incorrect email otp received'){
+                    //     err = new InvalidGrantError();
+                    //     err.message = "Incorrect OTP";
+                    //     err.internalCode = 455;
+                    //     err.statusCode = 401;// previous code 400
+                    //     err.name = 'incorrect_credentials'
+                    // }else{
+                    //     console.log('Error while using getUser in oauth model, Error -',error);
+                    //     err = new ServerError();
+                    //     err.message = 'Internal server error';
+                    //     err.internalCode = 500;
+                    //     err.name = 'internal_server_error';
+                    // }
+                    // return callback(err);
                 })
             }else{
-                console.log('Validation error -',validationResult.error);
-                const err = new ServerError();
-                err.message = 'Internal server error';
-                err.internalCode = 500;
-                err.name = 'internal_server_error';
-                return callback(err);
+                const caughtError = new definedErrors.InvalidCredentials();
+                caughtError.setAdditionalDetails(`Invalid email otp sent, otp - ${password}`);
+                return callback(caughtError);
+                // console.log('Validation error -',validationResult.error);
+                // const err = new ServerError();
+                // err.message = 'Internal server error';
+                // err.internalCode = 500;
+                // err.name = 'internal_server_error';
+                // return callback(err);
                 // throw new Error(validationResult.error);
             }
         break;
@@ -365,31 +440,48 @@ exports.getUser = (username, password, callback) => {
                 })
                 .then(pfcResult => callback(false, pfcResult))
                 .catch(error => {
-                    if(error == "Invalid credentials"){
-                        const err = new InvalidGrantError();
-                        err.message = "Incorrect user credentials";
-                        err.internalCode = 456 //pre 400
-                        err.name = 'incorrect_password'
-                        err.statusCode = 400
-                        return callback(err)
-                        // throw new Error('Invalid user credentials');
-                    }else{
-                        console.log('Error while using getUser in oauth model, Error -',error);
-                        //TODO: Separate handling for database errors and other specific errors
-                        const err = new ServerError();
-                        err.message = 'Internal server error';
-                        err.internalCode = 500;
-                        err.name = 'internal_server_error';
-                        return callback(err);
-                    }
+                    if(error instanceof ApplicationError) return callback(error);
+                    let caughtError;
+                    if(error.sqlMessage){
+                        caughtError = new definedErrors.DatabaseServerError();
+                        caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                        return callback(caughtError);
+                    } else if(error.message == 'Invalid credentials'){
+                        caughtError = new definedErrors.IncorrectCredentials();
+                        caughtError.setAdditionalDetails(`Credentials sent are - username - ${username}, password - ${password}`);
+                        return callback(caughtError);
+                    } 
+                    caughtError = new definedErrors.InternalServerError();
+                    caughtError.setAdditionalDetails(error);
+                    return callback(caughtError);
+                    // if(error == "Invalid credentials"){
+                    //     const err = new InvalidGrantError();
+                    //     err.message = "Incorrect user credentials";
+                    //     err.internalCode = 456 //pre 400
+                    //     err.name = 'incorrect_password'
+                    //     err.statusCode = 400
+                    //     return callback(err)
+                    //     // throw new Error('Invalid user credentials');
+                    // }else{
+                    //     console.log('Error while using getUser in oauth model, Error -',error);
+                    //     //TODO: Separate handling for database errors and other specific errors
+                    //     const err = new ServerError();
+                    //     err.message = 'Internal server error';
+                    //     err.internalCode = 500;
+                    //     err.name = 'internal_server_error';
+                    //     return callback(err);
+                    // }
                 })
             }else{
-                console.log('Validation error -',validationResult.error);
-                const err = new ServerError();
-                err.message = 'Internal server error';
-                err.internalCode = 500;
-                err.name = 'internal_server_error';
-                return callback(err);
+                const caughtError = new definedErrors.InvalidCredentials();
+                caughtError.setAdditionalDetails(`Invalid password sent, password - ${password}`);
+                return callback(caughtError);
+                // console.log('Validation error -',validationResult.error);
+                // const err = new ServerError();
+                // err.message = 'Internal server error';
+                // err.internalCode = 500;
+                // err.name = 'internal_server_error';
+                // return callback(err);
                 // throw new Error(validationResult.error);
             }
         break;
@@ -423,56 +515,69 @@ exports.getUser = (username, password, callback) => {
                     }else throw new Error('Incorrect otp received');
                 })
                 .catch(error => {
-                    let err;
-                    if(error == 'Invalid user id'){
-                        err = new ServerError();
-                        err.message = "User does not exist";
-                        err.internalCode = 453;
-                        err.statusCode = 401
-                        err.name = 'user_does_not_exist'
-                    }else if(error == 'Expired otp received'){
-                        err = new InvalidGrantError();
-                        err.message = "OTP Expired";
-                        err.internalCode = 410;// previous code 400
-                        err.name = 'gone';
-                        err.statusCode = 410;
-                        mobileService.deleteOTP(otpId)
-                        .then(message => console.log(message))
-                        .catch(error => console.log("Error while deleting OTP - "+error));
-                    }else if(error == 'Incorrect otp received'){
-                        err = new InvalidGrantError();
-                        err.message = "Incorrect OTP";
-                        err.internalCode = 455;
-                        err.statusCode = 401;// previous code 400
-                        err.name = 'incorrect_credentials'
-                    }else{
-                        console.log('Error while using getUser in oauth model, Error -',error);
-                        //TODO: Separate handling for database errors
-                        err = new ServerError();
-                        err.message = 'Internal server error';
-                        err.internalCode = 500;
-                        err.name = 'internal_server_error';
-                    }
-                    return callback(err);
+                    if(error instanceof ApplicationError) return callback(error);
+                    let caughtError;
+                    if(error.sqlMessage){
+                        caughtError = new definedErrors.DatabaseServerError();
+                        caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                        return callback(caughtError);
+                    } else if(error.message == 'Invalid credentials'){
+                        caughtError = new definedErrors.IncorrectCredentials();
+                        caughtError.setAdditionalDetails(`Credentials sent are - username - ${username}, password - ${password}`);
+                        return callback(caughtError);
+                    } 
+                    caughtError = new definedErrors.InternalServerError();
+                    caughtError.setAdditionalDetails(error);
+                    return callback(caughtError);
+                    // let err;
+                    // if(error == 'Invalid user id'){
+                    //     err = new ServerError();
+                    //     err.message = "User does not exist";
+                    //     err.internalCode = 453;
+                    //     err.statusCode = 401
+                    //     err.name = 'user_does_not_exist'
+                    // }else if(error == 'Expired otp received'){
+                    //     err = new InvalidGrantError();
+                    //     err.message = "OTP Expired";
+                    //     err.internalCode = 410;// previous code 400
+                    //     err.name = 'gone';
+                    //     err.statusCode = 410;
+                    //     mobileService.deleteOTP(otpId)
+                    //     .then(message => console.log(message))
+                    //     .catch(error => console.log("Error while deleting OTP - "+error));
+                    // }else if(error == 'Incorrect otp received'){
+                    //     err = new InvalidGrantError();
+                    //     err.message = "Incorrect OTP";
+                    //     err.internalCode = 455;
+                    //     err.statusCode = 401;// previous code 400
+                    //     err.name = 'incorrect_credentials'
+                    // }else{
+                    //     console.log('Error while using getUser in oauth model, Error -',error);
+                    //     err = new ServerError();
+                    //     err.message = 'Internal server error';
+                    //     err.internalCode = 500;
+                    //     err.name = 'internal_server_error';
+                    // }
+                    // return callback(err);
                 })
             }else{
-                console.log('Validation error -',validationResult.error);
-                const err = new ServerError();
-                err.message = 'Internal server error';
-                err.internalCode = 500;
-                err.name = 'internal_server_error';
-                return callback(err);
+                const caughtError = new definedErrors.InvalidCredentials();
+                caughtError.setAdditionalDetails(`Invalid phone otp sent, otp - ${password}`);
+                return callback(caughtError);
+                // console.log('Validation error -',validationResult.error);
+                // const err = new ServerError();
+                // err.message = 'Internal server error';
+                // err.internalCode = 500;
+                // err.name = 'internal_server_error';
+                // return callback(err);
                 // throw new Error(validationResult.error);
             }
         break;
 
         default:
-            const err = new InvalidGrantError();
-            err.message = "Invalid user credentials";
-            err.internalCode = 454 //pre 400
-            err.name = 'invalid_credentials'
-            err.statusCode = 401
-            return callback(err)
+            const caughtError = new definedErrors.InternalServerError;
+            caughtError.setAdditionalDetails(`The username was not properly concatinated with the method, given username - ${username}`);
+            return callback(caughtError);
             // throw new Error("Invalid grant when trying to get user in oauth model");
     }
 }
@@ -487,7 +592,7 @@ exports.getUser = (username, password, callback) => {
  * @param {requestCallback} callback - The callback that handles the response.
  * @returns {callback} - Callback function call with the response object to be sent for the request for a new token
  * @throws Internal server error, Database server error
- * @todo none
+ * @todo Third party case handling
  * 
 **/
 exports.saveToken = (token,client,user,callback) => {
@@ -527,14 +632,24 @@ exports.saveToken = (token,client,user,callback) => {
         }
     })
     .catch(error => {
-        console.log('Error while using saveToken in oauth model, Error -',error);
-        //TODO: Separate handling for database errors
-        const err = new ServerError();
-        err.message = 'Internal server error';
-        err.internalCode = 500;
-        err.name = 'internal_server_error';
-        return callback(err);
-        // throw new Error(error);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // console.log('Error while using saveToken in oauth model, Error -',error);
+        // //TODO: Separate handling for database errors
+        // const err = new ServerError();
+        // err.message = 'Internal server error';
+        // err.internalCode = 500;
+        // err.name = 'internal_server_error';
+        // return callback(err);
+        // // throw new Error(error);
     })
 }
 
@@ -572,13 +687,23 @@ exports.saveAuthorizationCode = (code, client, user, callback) => {
         return callback(null,returnObject);
     })
     .catch(error => {
-        console.log('Error while using saveAuthorizationCode in oauth model, Error -',error);
-        //TODO: Separate handling for database errors
-        const err = new ServerError();
-        err.message = 'Internal server error';
-        err.internalCode = 500;
-        err.name = 'internal_server_error';
-        return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // console.log('Error while using saveAuthorizationCode in oauth model, Error -',error);
+        // //TODO: Separate handling for database errors
+        // const err = new ServerError();
+        // err.message = 'Internal server error';
+        // err.internalCode = 500;
+        // err.name = 'internal_server_error';
+        // return callback(err);
         // throw new Error(error);
     })
 }
@@ -592,7 +717,7 @@ exports.saveAuthorizationCode = (code, client, user, callback) => {
  * @returns {callback} - Callback function call with the access token's data object containing 
  * all the details about the access token, handled by oauth-server library
  * @throws Incorrect credentials, Internal server error, Database server error
- * @todo none
+ * @todo Might need to add a new error for incorrect token
  * 
 **/
 exports.getAccessToken = (bearerToken, callback) => {
@@ -629,27 +754,45 @@ exports.getAccessToken = (bearerToken, callback) => {
         else throw new Error('Invalid authorization data');
     })
     .catch(error => {
-        let err = {};
-        if(error == 'Incorrect token'){
-            err = new InvalidTokenError();
-            err.message = 'Incorrect Token'
-            err.internalCode = 455 
-            err.name = 'incorrect_credentials'
-            err.statusCode = 401
-        }else if(error == 'Invalid authorization data'){
-            err = new InvalidTokenError();
-            err.internalCode = 454 //previous code 400
-            err.name = 'invalid_authorization_data'
-            err.statusCode = 401
-        }else{
-            console.log('Error while using getAccessToken in oauth model, Error -',error);
-            //TODO: Separate handling for database errors
-            err = new ServerError();
-            err.message = 'Internal server error';
-            err.internalCode = 500;
-            err.name = 'internal_server_error';
-        }   
-        return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        } else if(error.message == 'Incorrect token'){
+            caughtError = new definedErrors.Unauthorized();
+            caughtError.setMessage('Unauthorized - Incorrect token');
+            caughtError.setAdditionalDetails(`client id and user did not match data in JWT, client id - ${clientId}, user - ${user}, jwtBody - ${verifiedJwt.body}`);
+            return callback(caughtError);
+        } else if(error.message == 'Invalid authorization data'){
+            caughtError = new definedErrors.Unauthorized();
+            caughtError.setAdditionalDetails(`client id and user did not match data in JWT, client id - ${clientId}, user - ${user}, jwtBody - ${verifiedJwt.body}`);
+            return callback(caughtError);
+        }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // let err = {};
+        // if(error == 'Incorrect token'){
+        //     err = new InvalidTokenError();
+        //     err.message = 'Incorrect Token'
+        //     err.internalCode = 455 
+        //     err.name = 'incorrect_credentials'
+        //     err.statusCode = 401
+        // }else if(error == 'Invalid authorization data'){
+        //     err = new InvalidTokenError();
+        //     err.internalCode = 454 //previous code 400
+        //     err.name = 'invalid_authorization_data'
+        //     err.statusCode = 401
+        // }else{
+        //     console.log('Error while using getAccessToken in oauth model, Error -',error);
+        //     err = new ServerError();
+        //     err.message = 'Internal server error';
+        //     err.internalCode = 500;
+        //     err.name = 'internal_server_error';
+        // }   
+        // return callback(err);
     })
 }
 
@@ -695,27 +838,45 @@ exports.getRefreshToken = (refreshToken, callback) => {
         throw new Error('Invalid authorization data');
     })
     .catch(error => {
-        let err = {};
-        if(error == 'Incorrect token'){
-            err = new InvalidTokenError();
-            err.message = 'Incorrect Token'
-            err.internalCode = 455 
-            err.name = 'incorrect_credentials'
-            err.statusCode = 401
-        }else if(error == 'Invalid authorization data'){
-            err = new InvalidTokenError();
-            err.internalCode = 454 //previous code 400
-            err.name = 'invalid_authorization_data'
-            err.statusCode = 401
-        }else{
-            console.log('Error while using getRefreshToken in oauth model, Error -',error);
-            //TODO: Separate handling for database errors
-            err = new ServerError();
-            err.message = 'Internal server error';
-            err.internalCode = 500;
-            err.name = 'internal_server_error';
-        }   
-        return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        } else if(error.message == 'Incorrect token'){
+            caughtError = new definedErrors.Unauthorized();
+            caughtError.setMessage('Unauthorized - Incorrect token');
+            caughtError.setAdditionalDetails(`client id and user did not match data in JWT, client id - ${clientId}, user - ${user}, jwtBody - ${verifiedJwt.body}`);
+            return callback(caughtError);
+        } else if(error.message == 'Invalid authorization data'){
+            caughtError = new definedErrors.Unauthorized();
+            caughtError.setAdditionalDetails(`client id and user did not match data in JWT, client id - ${clientId}, user - ${user}, jwtBody - ${verifiedJwt.body}`);
+            return callback(caughtError);
+        }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // let err = {};
+        // if(error == 'Incorrect token'){
+        //     err = new InvalidTokenError();
+        //     err.message = 'Incorrect Token'
+        //     err.internalCode = 455 
+        //     err.name = 'incorrect_credentials'
+        //     err.statusCode = 401
+        // }else if(error == 'Invalid authorization data'){
+        //     err = new InvalidTokenError();
+        //     err.internalCode = 454 //previous code 400
+        //     err.name = 'invalid_authorization_data'
+        //     err.statusCode = 401
+        // }else{
+        //     console.log('Error while using getRefreshToken in oauth model, Error -',error);
+        //     err = new ServerError();
+        //     err.message = 'Internal server error';
+        //     err.internalCode = 500;
+        //     err.name = 'internal_server_error';
+        // }   
+        // return callback(err);
     })
 }
 
@@ -753,22 +914,40 @@ exports.getAuthorizationCode = (authorizationCode, callback) => {
         throw new Error('Incorrect authorization code');
     })
     .catch(error => {
-        let err = {};
-        if(error == 'Incorrect authorization code'){
-            err = new UnauthorizedRequestError();
-            err.message = 'Unauthorized'
-            err.internalCode = 401
-            err.name = 'unauthorized'
-            err.statusCode = 401
-        }else{
-            console.log('Error while using getAuthorizationCode in oauth model, Error -',error);
-            //TODO: Separate handling for database errors
-            err = new ServerError();
-            err.message = 'Internal server error';
-            err.internalCode = 500;
-            err.name = 'internal_server_error';
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        } else if(error.message == 'Incorrect token'){
+            caughtError = new definedErrors.Unauthorized();
+            caughtError.setMessage('Unauthorized - Incorrect token');
+            caughtError.setAdditionalDetails(`client id and user did not match data in JWT, client id - ${clientId}, user - ${user}, jwtBody - ${verifiedJwt.body}`);
+            return callback(caughtError);
+        } else if(error.message == 'Invalid authorization data'){
+            caughtError = new definedErrors.Unauthorized();
+            caughtError.setAdditionalDetails(`client id and user did not match data in JWT, client id - ${clientId}, user - ${user}, jwtBody - ${verifiedJwt.body}`);
+            return callback(caughtError);
         }
-        return callback(err);
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // let err = {};
+        // if(error == 'Incorrect authorization code'){
+        //     err = new UnauthorizedRequestError();
+        //     err.message = 'Unauthorized'
+        //     err.internalCode = 401
+        //     err.name = 'unauthorized'
+        //     err.statusCode = 401
+        // }else{
+        //     console.log('Error while using getAuthorizationCode in oauth model, Error -',error);
+        //     err = new ServerError();
+        //     err.message = 'Internal server error';
+        //     err.internalCode = 500;
+        //     err.name = 'internal_server_error';
+        // }
+        // return callback(err);
     })
 }
 
@@ -791,13 +970,23 @@ exports.revokeToken = (token, callback) => {
         return callback(false,true);
     })
     .catch(error => {
-        console.log('Error while using revokeToken in oauth model, Error -',error);
-        //TODO: Separate handling for database errors
-        const err = new ServerError();
-        err.message = 'Internal server error';
-        err.internalCode = 500;
-        err.name = 'internal_server_error';
-        return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // console.log('Error while using revokeToken in oauth model, Error -',error);
+        // //TODO: Separate handling for database errors
+        // const err = new ServerError();
+        // err.message = 'Internal server error';
+        // err.internalCode = 500;
+        // err.name = 'internal_server_error';
+        // return callback(err);
     })
 }
 
@@ -821,12 +1010,22 @@ exports.revokeAuthorizationCode = (code, callback) => {
         return callback(false,true);
     })
     .catch(error => {
-        console.log('Error while using revokeAuthorizationCode in oauth model, Error -',error);
-        //TODO: Separate handling for database errors
-        const err = new ServerError();
-        err.message = 'Internal server error';
-        err.internalCode = 500;
-        err.name = 'internal_server_error';
-        return callback(err);
+        if(error instanceof ApplicationError) return callback(error);
+        let caughtError;
+        if(error.sqlMessage){
+            caughtError = new definedErrors.DatabaseServerError();
+            caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            return callback(caughtError);
+        }
+        caughtError = new definedErrors.InternalServerError();
+        caughtError.setAdditionalDetails(error);
+        return callback(caughtError);
+        // console.log('Error while using revokeAuthorizationCode in oauth model, Error -',error);
+        // //TODO: Separate handling for database errors
+        // const err = new ServerError();
+        // err.message = 'Internal server error';
+        // err.internalCode = 500;
+        // err.name = 'internal_server_error';
+        // return callback(err);
     })
 }

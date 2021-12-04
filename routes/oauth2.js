@@ -1,4 +1,5 @@
 const oauthServer = require('oauth2-server');
+const { ApplicationError } = require('../errors');
 
 const {oauthErrorHandler} = require('../middlewares/oauthErrorHandler');
 
@@ -54,7 +55,8 @@ module.exports = (router, app) => {
         .then(token => {
             res.json(token);
         }).catch(err => {
-            next(err);
+            /** @description Have to specifically send err.inner because the complete error includes the error instance sent by oauth-server library**/
+            next(err.inner);
             // console.log("--jjfjkfjkffofj=----")
             // console.log("----obtainToken error-----"+err)
             // delete err.statusCode
