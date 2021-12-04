@@ -1,3 +1,19 @@
+/**
+ *
+ * file - logger.js - The file that is used to handle logs
+ *
+ * @author     Nikita Kriplani
+ * @version    0.1.0
+ * @created    25/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - All logging related functionalities are handled in this file
+ *
+ * Unknown    - NK - Created
+ * 25/11/2021 - PS - Updated
+ * 
+**/
 const winston = require('winston');
 const config = require('../config');
 
@@ -5,14 +21,15 @@ const cn = require('./common');
 
 const today = cn.formattedTodaysDate()
 
+/**@description - Used to define custom error levels and color patterns for each level**/
 const customLevels = {
     levels: {
       trace: 5,
       debug: 4,
-      info: 3,
-      warn: 2,
+      info:  3,
+      warn:  2,
       error: 1,
-      fatal: 0,
+      fatal: 0
     },
     colors: {
       trace: 'white',
@@ -20,10 +37,11 @@ const customLevels = {
       info: 'green',
       warn: 'yellow',
       error: 'red',
-      fatal: 'red',
+      fatal: 'red'
     },
 };
 
+/**@description - Used to define custom error levels and color patterns for each level**/
 const fileFormatter = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.splat(),
@@ -48,9 +66,16 @@ const consoleFormatter = winston.format.combine(
     }),
 );
 
+/**
+ * 
+ * @class
+ * @description - The logger class is responsible for defining file transport, console transport, creating the logger, configuring it and defining the functions that can be used 
+ * according to different types of errors(or otherwise) that are to be logged by the logger
+ * @todo Check why new log files are not created while the server is running already, since we need to created log file on daily basis.
+ * 
+ */
 class Logger {    
     constructor() {
-      //TODO: Check why new log files are not created while the server is running already, since we need to created log file on daily basis.
       const saveToFileTransport = new winston.transports.File({
         format: fileFormatter,
         filename: `logs/error_${today}.log`,
