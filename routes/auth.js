@@ -1,5 +1,4 @@
 // const validationMiddleware = require('../middlewares/validationMiddleware');
-
 const userController = require('../controllers/user');
 const authController = require('../controllers/auth');
 const c = require('../utils/handlers/controller');
