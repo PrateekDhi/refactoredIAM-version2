@@ -8,20 +8,20 @@ module.exports = class TokenClaim {
     this.scope = scope;
   }
 
-  fetchWithScope(){
-      return {
-          sub: this.sub,
-          cid: this.cid,
-          services: this.services,
-          scope: this.services
-      }
-  }
-
-  fetchWithoutScope(){
+  fetch(){
+    if(this.scope != null){
+        return {
+            sub: this.sub,
+            cid: this.cid,
+            services: this.services,
+            scope: this.scope
+        }
+    }else{
         return {
             sub: this.sub,
             cid: this.cid,
             services: this.services,
         }
     }
+  }
 };

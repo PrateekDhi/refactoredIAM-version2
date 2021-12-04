@@ -1,3 +1,20 @@
+/**
+ *
+ * file - oauth - index.js - The file that is used to all oauth related services
+ *
+ * @author     Prateek Shukla
+ * @version    0.1.0
+ * @created    15/11/2021
+ * @copyright  Dhi Technologies
+ * @license    For use by Dhi Technologies applications
+ *
+ * @description - All oauth related services which are used by oauth-server library are handled in this file
+ * NOTE - Do not change the name of the functions since they are defined as per oauth-server library reqirements
+ *
+ * 15/11/2021 - PS - Created
+ * 
+**/
+
 const InvalidGrantError = require('oauth2-server/lib/errors/invalid-grant-error');
 const ServerError = require('oauth2-server/lib/errors/server-error');
 const UnauthorizedRequestError = require('oauth2-server/lib/errors/unauthorized-request-error')
@@ -24,8 +41,21 @@ const OauthResponseClient = require('../../models/OauthResponseClient');
 
 //Validations
 const validations = require('./validate');
-const { Console } = require('winston/lib/winston/transports');
+// const { Console } = require('winston/lib/winston/transports');
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to generate a new access token to be used by oauth-server library
+ * @param {object} client - Object containing client related data
+ * @param {object} user - Object containing user related data
+ * @param {object} scope - Object containing scope data
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the generated token, handled by oauth-server library
+ * @throws Invalid client credentials, Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.generateAccessToken = exports.generateRefreshToken = (client, user, scope, callback) => {
     console.log('Generate access token/ Generate refresh token');
     if(client.id && user.id){
@@ -37,8 +67,7 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
                 let jwt;
                 let token;
                 try{
-                    if(scope) claims = tokenClaim.fetchWithScope(); //try catch for this
-                    else claims = tokenClaim.fetchWithoutScope(); //try catch for this
+                    claims = tokenClaim.fetch();
                     jwt = jwtService.create(claims,result.data.clientSecret,process.env.JWT_CRYPTOGRAPHIC_ALGORITHM);
                     jwt.setExpiration();
         
@@ -77,6 +106,18 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
     }
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get client given the clients id and secret
+ * @param {string} clientId - Client's id
+ * @param {string} clientSecret - Client's secret
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the client's data object, handled by oauth-server library
+ * @throws Invalid client credentials, Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.getClient = (clientId, clientSecret, callback) => {
     console.log('Get Client')
     clientService.getClient(clientId)
@@ -115,6 +156,18 @@ exports.getClient = (clientId, clientSecret, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to check whether the client is authorized to use a particular grant type
+ * @param {string} clientId - Client's id
+ * @param {string} grantType - Given grant type to check
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with BOOLEAN value, true if grant type is allowed for client, false otherwise, handled by oauth-server library
+ * @throws Invalid client credentials, Database server error, Internal server error
+ * @todo none
+ * 
+**/
 exports.grantTypeAllowed = (clientId, grantType, callback) => {
     console.log('Grant type allowed')
     clientService.getClientGrantType(clientId)
@@ -144,6 +197,20 @@ exports.grantTypeAllowed = (clientId, grantType, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to get user given, user's credentials. These credentials can either be user's id with otp(email/phone) 
+ * or user's id with password. Different cases handles these different scenarios
+ * @param {string} username - User's id concatinated with method being used(format - <method-userId>). Methods supported are - 
+ * 'email' denoting email otp, 'mobile' denoting mobile phone otp and 'password' denoting user's password
+ * @param {string} password - User's email otp/ user's phone otp/ user's password
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the user's data object, handled by oauth-server library
+ * @throws Invalid User Id, Invalid Temporary User Id, Gone(OTP expired), Incorrect credentials, Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.getUser = (username, password, callback) => {
     console.log('Get user')
     let method;
@@ -410,6 +477,19 @@ exports.getUser = (username, password, callback) => {
     }
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert access token and refresh token to database
+ * @param {object} token - Object containing the access and refresh tokens and their expiration times
+ * @param {object} client - Object containing client related data
+ * @param {object} user - Object containing user related data
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the response object to be sent for the request for a new token
+ * @throws Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.saveToken = (token,client,user,callback) => {
     console.log('Save token')
     const userId = user.id;
@@ -458,6 +538,19 @@ exports.saveToken = (token,client,user,callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to insert authrorization code to database
+ * @param {object} code - Object containing the authorization code and its expiration time
+ * @param {object} client - Object containing client related data
+ * @param {object} user - Object containing user related data
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the response object to be sent for the request for a new authorization code
+ * @throws Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.saveAuthorizationCode = (code, client, user, callback) => {
     console.log('Save authorization code')
 
@@ -490,6 +583,18 @@ exports.saveAuthorizationCode = (code, client, user, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to retrieve and validate an access token details that has been sent through a request
+ * @param {string} bearerToken - The token to be validated
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the access token's data object containing 
+ * all the details about the access token, handled by oauth-server library
+ * @throws Incorrect credentials, Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.getAccessToken = (bearerToken, callback) => {
     console.log('Get access token')
     let id;
@@ -548,6 +653,18 @@ exports.getAccessToken = (bearerToken, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to retrieve and validate an refresh token details that has been sent through a request
+ * @param {string} refreshToken - The token to be validated
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the refresh token's data object containing 
+ * all the details about the refresh token, handled by oauth-server library
+ * @throws Incorrect credentials, Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.getRefreshToken = (refreshToken, callback) => {
     console.log('Get refresh token')
     oauthService.getRefreshTokenAndClientDetailsByToken(refreshToken)
@@ -602,6 +719,18 @@ exports.getRefreshToken = (refreshToken, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to retrieve and validate an authorization code details that has been sent through a request
+ * @param {string} authorizationCode - The code to be validated
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with the authorizationn code's data object containing 
+ * all the details about the authorizationn code, handled by oauth-server library
+ * @throws Incorrect credentials, Internal server error, Database server error
+ * @todo Might need to make new error for incorrect authorization code
+ * 
+**/
 exports.getAuthorizationCode = (authorizationCode, callback) => {
     console.log('Get Authorization code')
     oauthService.getAuthCodeAndClientDetailsByToken(authorizationCode)
@@ -643,6 +772,17 @@ exports.getAuthorizationCode = (authorizationCode, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to revoke a refresh token
+ * @param {object} token - Object containing the refresh token
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with Boolean representing whether the refresh token was revoked successfully, true if revoked successfully
+ * @throws Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.revokeToken = (token, callback) => {
     console.log('Revoke token')
     const refreshToken = token.refreshToken;
@@ -661,6 +801,17 @@ exports.revokeToken = (token, callback) => {
     })
 }
 
+/**
+ * 
+ * @author Prateek Shukla
+ * @description The function is used to revoke an authorization code
+ * @param {object} token - Object containing the authorization code
+ * @param {requestCallback} callback - The callback that handles the response.
+ * @returns {callback} - Callback function call with Boolean representing whether the authorization code was revoked successfully, true if revoked successfully
+ * @throws Internal server error, Database server error
+ * @todo none
+ * 
+**/
 exports.revokeAuthorizationCode = (code, callback) => {
     console.log('Revoke Authorization code')
     const authorizationCode = code.code;
