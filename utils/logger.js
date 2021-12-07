@@ -120,5 +120,6 @@ class Logger {
       this.logger.log('fatal', msg, meta);
     }
 }
+
     
-module.exports = new Logger();
+module.exports = Logger;
