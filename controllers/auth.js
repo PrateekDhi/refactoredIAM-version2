@@ -180,7 +180,6 @@ exports.userLoginDetails = (client_id, username, service, isEmail, userId) => {
         let userId;
         let userEmail;
         return new Promise((resolve,reject) => {
-            console.log(isEmail)
             if(isEmail) resolve(username.toLowerCase())
             else userService.findUserEmailByUsername(username)
             .then(result => {
@@ -197,7 +196,6 @@ exports.userLoginDetails = (client_id, username, service, isEmail, userId) => {
             ])
         })
         .then(results => {
-            console.log(results);
             userId = results[1].data._id;
             return emailService.insertNewEmailOTP(userId,results[0].eOTP,'login',service,1);
         })
@@ -214,8 +212,6 @@ exports.userLoginDetails = (client_id, username, service, isEmail, userId) => {
             return resolve(response.getResponse());
         })
         .catch(err => {
-            console.log('---------------------')
-            console.log(err);
             if(err.message == "Database server error"){
                 const response = new Response(null,"User login details check failed", 503, "database_server_error", 503)
                 return reject(response.getResponse());
@@ -272,7 +268,6 @@ exports.resendEmailOTP = (otpId) => {
         cn.sendResponse(res,responseObject,"OTP sent to email address, will be valid for the next 1 hour",200,null, 200)
     })
     .catch(err => {
-        console.log(err);
         if(err.message == "Database server error") cn.sendResponse(res,null,"Resend Email OTP Failed", 503, "database_server_error", 503);
         else cn.sendResponse(res,null,"Resend Email OTP Failed", 500, "internal_server_error", 500);
     })
@@ -316,7 +311,6 @@ exports.mobileOTPLogin = (client_id, username, service) => {
         )
     })
     .catch(err => {
-        console.log(err);
         if(err.message == "Database server error") cn.sendResponse(res,null,"Mobile otp login process failed", 503, "database_server_error", 503);
         else cn.sendResponse(res,null,"Mobile otp login process failed", 500, "internal_server_error", 500);
     })
@@ -366,7 +360,6 @@ exports.resendPhoneOTP = (client_id, otpId) => {
         )
     })
     .catch(err => {
-        console.log(err);
         if(err.message == "Database server error") cn.sendResponse(res,null,"Resend Phone OTP Failed", 503, "database_server_error", 503);
         else cn.sendResponse(res,null,"Resend Phone OTP Failed", 500, "internal_server_error", 500);
     })
@@ -394,7 +387,6 @@ exports.resetPasswordEmail = (username,client_id) => {
         .then(JWE => emailService.sendRecoveryEmail(req.body.username,JWE))
         .then(result => sendResponse(res,null,"Reset password email process completed - Email has been sent to registered email address", 200, null, 200))
         .catch(err => {
-            console.log(err);
             if(err.message == "Database server error") cn.sendResponse(res,null,"Resend Phone OTP Failed", 503, "database_server_error", 503);
             else cn.sendResponse(res,null,"Resend Phone OTP Failed", 500, "internal_server_error", 500);
         })
@@ -415,7 +407,6 @@ exports.resetPasswordEmail = (username,client_id) => {
         .then(results => emailService.sendRecoveryEmail(results[1],results[0]))
         .then(result => sendResponse(res,null,"Reset password email process completed - Email has been sent to registered email address", 200, null, 200))
         .catch(err => {
-            console.log(err);
             if(err.message == "Database server error") cn.sendResponse(res,null,"Resend Phone OTP Failed", 503, "database_server_error", 503);
             else cn.sendResponse(res,null,"Resend Phone OTP Failed", 500, "internal_server_error", 500);
         })
@@ -440,7 +431,6 @@ exports.setNewPassword = (client_id, recoveryToken, password) => {
     })
     .then(result => sendResponse(res,null,"Password reset successful",200,null, 200))
     .catch(err => {
-        console.log(err);
         if(err.message == "Database server error") cn.sendResponse(res,null,"Resend Phone OTP Failed", 503, "database_server_error", 503);
         else cn.sendResponse(res,null,"Resend Phone OTP Failed", 500, "internal_server_error", 500);
     })

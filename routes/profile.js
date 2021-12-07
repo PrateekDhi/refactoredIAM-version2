@@ -101,7 +101,6 @@ module.exports =  (router, app) => {
     // router.post('/enter',  app.oauth.authenticate(), restrictedController.test)
     
     const authenticateRequest = (req,res,next) => {
-        console.log(JSON.stringify(req.headers))
 
         const request = new Request(req);
         const response = new Response(res);
@@ -113,7 +112,7 @@ module.exports =  (router, app) => {
                 res.locals.oauth = {token: token}; //to pass on the token and its details to the controller function after succesful authorization
                 next();
             }).catch(err => {
-                console.log("[][][][][--autheticate--][][][]"+ JSON.stringify(err))
+                // console.log("[][][][][--autheticate--][][][]"+ JSON.stringify(err))
                 if(err.internalCode != null){
                     // delete err.statusCode; //same as code
                     delete err.status; //same as code
@@ -164,7 +163,6 @@ module.exports =  (router, app) => {
         })
         .catch(err => {
             // handle error condition
-            console.log(err)
             // delete err.statusCode
             if(err.internalCode != null){
                 // delete err.statusCode; //same as code

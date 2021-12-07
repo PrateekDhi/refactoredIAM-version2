@@ -8,14 +8,11 @@ const Response = oauthServer.Response;
 
 module.exports = (router, app) => {
     const manageAuthenticationGrantType = (req,res,next) => {
-        console.log(req.body)
         if(req.body.grant_type == 'mobile_otp'){
-            console.log('Logging in through mobile OTP');
             req.body.username = 'mobile-'+req.body.username
             req.body.grant_type = 'password';
             next();
         }else if(req.body.grant_type == 'email_otp'){
-            console.log('Logging in through email OTP');
             req.body.username = 'email-'+req.body.username
             req.body.grant_type = 'password';
             next();
@@ -33,7 +30,6 @@ module.exports = (router, app) => {
     }
 
     const manageRefreshTokenRequest = (req,res,next) => {
-        console.log(JSON.stringify(req.headers))
         if(req.body.grant_type == 'refresh_token' && req.body.refresh_token != null && req.body.client_id != null){
             next();
         }else{
