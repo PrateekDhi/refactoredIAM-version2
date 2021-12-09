@@ -66,6 +66,7 @@ module.exports = (router, app) => {
                 // }
             })
             .catch(err => {
+                console.log(err)
                 if(err instanceof ApplicationError) return next(err);
                 let caughtError;
                 if(err.message == 'unregistered_email'){
@@ -74,7 +75,7 @@ module.exports = (router, app) => {
                     return next(caughtError);
                 }
                 caughtError = new definedErrors.InternalServerError();
-                caughtError.setAdditionalDetails(error);
+                caughtError.setAdditionalDetails(err);
                 return next(caughtError);
             })
         }else{

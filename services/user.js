@@ -2,6 +2,8 @@ const cn = require('../utils/common');
 const definedErrors = require('../errors');
 const User = require('../models/User');
 
+const ApplicationError = definedErrors.ApplicationError;
+
 /**
  * 
  * @author Prateek Shukla
@@ -36,8 +38,9 @@ exports.findUserByEmailAddress = (email) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
+                caughtError.setType('fatal');
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
                 return reject(caughtError);
             //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
@@ -82,9 +85,10 @@ exports.findUserByUsername = (username) => {
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 const caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -126,9 +130,10 @@ exports.findUserEmailByUsername = (username) => {
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 const caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
             //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             //   error.message = "Database server error";
@@ -181,9 +186,10 @@ exports.insertNewUser = (firstName, middleName, lastName, email, username, passw
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 const caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -217,9 +223,10 @@ exports.checkUserExistenceByUsername = (username) => {
         .catch(error => {
           if(error instanceof ApplicationError) return reject(error);
           let caughtError;
-          if(error.sqlMessage){
+          if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return reject(caughtError);
           }
           caughtError = new definedErrors.InternalServerError();

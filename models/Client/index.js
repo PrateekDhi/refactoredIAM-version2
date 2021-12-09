@@ -1,4 +1,4 @@
-const {db} = require('../../utils/databases/mysql');
+const db = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class Client {
@@ -25,7 +25,7 @@ module.exports = class Client {
       throw new Error(validationResult.error)
     }
     //TODO: Corrections to be done
-    // return db.execute(
+    // return db.executeQuery(
     //   'INSERT INTO client (id, firstName, middleName, lastName, email, username, password, countryCode, phoneNumber, dateOfBirth, gender, phoneNumberVerficationStatus, usingDefaultUsername, creationTime, updationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     //   [this.id, this.firstName, this.middleName, this.lastName, this.email, this.username, this.password, this.countryCode, this.phoneNumber, this.dateOfBirth, this.gender, this.phoneNumberVerficationStatus, this.usingDefaultUsername, this.creationTime, this.updationTime]
     // );
@@ -34,22 +34,22 @@ module.exports = class Client {
   static deleteById(id) {}
 
   static fetchAll() {
-    return db().execute('SELECT * FROM client');
+    return db.executeQuery('SELECT * FROM client');
   }
 
   static findById(id) {
-    return db().execute('SELECT * FROM client WHERE client._id = ?', [id]);
+    return db.executeQuery('SELECT * FROM client WHERE client._id = ?', [id]);
   }
 
   static findSecretById(id) {
-    return db().execute('SELECT clientSecret FROM client WHERE client._id = ?', [id]);
+    return db.executeQuery('SELECT clientSecret FROM client WHERE client._id = ?', [id]);
   }
 
   static findGrantTypeById(id){
-    return db().execute('SELECT grantType FROM client WHERE client._id = ?', [id]);
+    return db.executeQuery('SELECT grantType FROM client WHERE client._id = ?', [id]);
   }
 
   static findCountrForId(id) {
-    return db().execute('SELECT COUNT(*) AS count FROM client WHERE client._id = ?', [id]);
+    return db.executeQuery('SELECT COUNT(*) AS count FROM client WHERE client._id = ?', [id]);
   }
 };

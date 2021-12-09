@@ -1,4 +1,4 @@
-const {db} = require('../../utils/databases/mysql');
+const db = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class EmailOTP {
@@ -15,25 +15,25 @@ module.exports = class EmailOTP {
   save() {
     const validationResult = schema.validate(this)
     if(validationResult.error) throw new Error(validationResult.error);
-    return db.execute(
+    return db.executeQuery(
       'INSERT INTO email_otp (_id, otp, userId, type, expiresAt, service, attemptNumber) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [this._id, this.otp, this.userId, this.type, this.expiresAt, this.service, this.attemptNumber]
     );
   }
 
   static deleteById(id) {
-    return db.execute('DELETE FROM email_otp WHERE email_otp._id = ?', [id])
+    return db.executeQuery('DELETE FROM email_otp WHERE email_otp._id = ?', [id])
   }
 
   static fetchAll() {
-    return db.execute('SELECT * FROM email_otp');
+    return db.executeQuery('SELECT * FROM email_otp');
   }
 
   static findById(id) {
-    return db.execute('SELECT * FROM email_otp WHERE email_otp.id = ?', [id]);
+    return db.executeQuery('SELECT * FROM email_otp WHERE email_otp.id = ?', [id]);
   }
 
   static findEmailOtpByUserIdAndOtp(id,otp) {
-    return db.execute('SELECT * FROM email_otp WHERE email_otp.userId = ? AND email_otp.otp = ?', [id,otp]);
+    return db.executeQuery('SELECT * FROM email_otp WHERE email_otp.userId = ? AND email_otp.otp = ?', [id,otp]);
   }
 };

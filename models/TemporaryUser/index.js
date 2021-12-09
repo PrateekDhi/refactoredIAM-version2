@@ -1,4 +1,4 @@
-const {db} = require('../../utils/databases/mysql');
+const db = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class TemporaryUser {
@@ -23,29 +23,29 @@ module.exports = class TemporaryUser {
       // console.log('validation error', validationResult.error)
       throw new Error(validationResult.error)
     }
-    return db.execute(
+    return db.executeQuery(
       'INSERT INTO temporary_user (_id,firstName,lastName,email,password,countryCode,phoneNumber,client_id, creationTime, updationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [this._id, this.firstName,this.lastName,this.email,this.password,this.countryCode,this.phoneNumber,this.client_id,this.creationTime,this.updationTime]
     );
   }
 
   static deleteById(id) {
-    return db.execute('DELETE FROM temporary_user WHERE temporary_user._id = ?', [id])
+    return db.executeQuery('DELETE FROM temporary_user WHERE temporary_user._id = ?', [id])
   }
 
   static fetchAll() {
-    return db.execute('SELECT * FROM temporary_user');
+    return db.executeQuery('SELECT * FROM temporary_user');
   }
 
   static findByEmail(email) {
-    return db.execute('SELECT * FROM temporary_user WHERE temporary_user.email = ?', [email]);
+    return db.executeQuery('SELECT * FROM temporary_user WHERE temporary_user.email = ?', [email]);
   }
 
   static findById(id) {
-    return db.execute('SELECT * FROM temporary_user WHERE temporary_user._id = ?', [id]);
+    return db.executeQuery('SELECT * FROM temporary_user WHERE temporary_user._id = ?', [id]);
   }
 
   static findCountrForId(id) {
-    return db.execute('SELECT COUNT(*) AS count FROM temporary_user WHERE temporary_user._id = ?', [id]);
+    return db.executeQuery('SELECT COUNT(*) AS count FROM temporary_user WHERE temporary_user._id = ?', [id]);
   }
 };

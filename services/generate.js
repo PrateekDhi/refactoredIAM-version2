@@ -3,6 +3,8 @@ const definedErrors = require('../errors');
 
 const User = require('../models/User');
 
+const ApplicationError = definedErrors.ApplicationError;
+
 /**
  * 
  * @author Prateek Shukla
@@ -33,9 +35,10 @@ exports.generateNewUsername = () => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";

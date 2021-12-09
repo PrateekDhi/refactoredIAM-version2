@@ -8,6 +8,7 @@ class ApplicationError extends Error{
         this.internalCode = internalCode || 500;
         errors != null ? this.errors = errors : null;
         this.additionalDetails = null;
+        this.type = 'error';
     }
     
     getResponseObject() {
@@ -29,6 +30,11 @@ class ApplicationError extends Error{
 
     setAdditionalDetails(additionalDetails) {
         this.additionalDetails = additionalDetails;
+    }
+
+    setType(type) {
+        console.log(type)
+        if(['trace','debug','info','warn','fatal','error'].includes(type)) this.type = type;
     }
 }
 

@@ -5,6 +5,7 @@ const EmailOTP = require('../models/EmailOTP');
 const definedErrors = require('../errors');
 
 sgMail.setApiKey(config.email_gateway_api_key);
+const ApplicationError = definedErrors.ApplicationError;
 
 /**
  * 
@@ -85,9 +86,10 @@ exports.insertNewEmailOTP = (userId,otp,type,service,attemptNumber) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -129,9 +131,10 @@ exports.getEmailOTPByUserIdAndOtp = (id,otp) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -139,7 +142,7 @@ exports.getEmailOTPByUserIdAndOtp = (id,otp) => {
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
-            // if(error.sqlMessage){
+            // if(error.hasOwnProperty('sql')){
             //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             //   error.message = "Database server error";
             // }
@@ -177,9 +180,10 @@ exports.getEmailOTPDataById = (id) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -187,7 +191,7 @@ exports.getEmailOTPDataById = (id) => {
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
-            // if(error.sqlMessage){
+            // if(error.hasOwnProperty('sql')){
             //   console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             //   error.message = "Database server error";
             // }
@@ -215,9 +219,10 @@ exports.deleteEmailOTPById = (id) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -225,7 +230,7 @@ exports.deleteEmailOTPById = (id) => {
             caughtError = new definedErrors.InternalServerError();
             caughtError.setAdditionalDetails(error);
             return reject(caughtError);
-            // if(error.sqlMessage){
+            // if(error.hasOwnProperty('sql')){
             //     console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             //     error.message = "Database server error";
             // }
