@@ -63,11 +63,6 @@ module.exports = {
     bcrypt:{
         password_salt_rounds: parseInt(process.env.PASSWORD_SALT_ROUNDS)
     },
-    app_url: process.env.APP_URL,
-    group_invitation_code_link:{
-        path: process.env.GROUP_INVITATION_CODE_LINK_PATH,
-        param_key: process.env.GROUP_INVITATION_CODE_LINK_PARAM_KEY
-    },
     email_otp: {
         validity_duration: parseInt(process.env.EMAIL_OTP_VALIDITY_DURATION)
     }

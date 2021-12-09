@@ -135,6 +135,7 @@ exports.getClient = (clientId, clientSecret, callback) => {
         }else throw new Error('Incorrect client id')
     })
     .catch(error => {
+        console.log(error)
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
         if(error.sqlMessage){

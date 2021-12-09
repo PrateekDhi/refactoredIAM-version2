@@ -19,6 +19,8 @@ app.oauth = new oAuth2Server({  //TODO: Add oauth configurations to config.json
     refreshTokenLifetime: 600
 })
 
+
+const {initiateMySqlPool} = require('./utils/databases/mysql');
 const authRoutes = require('./routes/auth')(express.Router(), app);
 const oauth2Routes = require('./routes/oauth2')(express.Router(), app);
 const profileRoutes = require('./routes/profile')(express.Router(), app);
@@ -89,8 +91,8 @@ app.use(undefinedRoutes);
 app.use(handlingErrorsMiddleware);
 // app.use(app.oauth.errorHandler());
 
-// createMySqlPool().then(async () => {
-//     console.log("\x1b[32m",'MySql Database connected')
+initiateMySqlPool().then(response => {
+    console.log("\x1b[32m",'MySql Pool Initialization response - ', response)
     const port = config.server_port || 3000;
     const ip = config.serve_ip || "localhost";
     app.listen(port, ip, () => {
@@ -99,7 +101,7 @@ app.use(handlingErrorsMiddleware);
     // initializeFCMConnection().then(async () => {
     //     console.log("\x1b[32m",'Initialized FCM connection');
     // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not initialize FCM connection, error - %s',err)}));
-// }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not connect to Inventory mysql Database, error - %s',err)}));
+}).catch((err) => console.log("\x1b[31m",'Could not connect to Mysql database, error - ',err));
 
 module.exports = {
   app

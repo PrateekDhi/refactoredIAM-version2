@@ -1,4 +1,4 @@
-const db = require('../../utils/databases/mysql');
+const {db} = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class RefreshToken {

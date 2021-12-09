@@ -1,4 +1,4 @@
-const db = require('../../utils/databases/mysql');
+const {db} = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class Client {
@@ -34,22 +34,22 @@ module.exports = class Client {
   static deleteById(id) {}
 
   static fetchAll() {
-    return db.execute('SELECT * FROM client');
+    return db().execute('SELECT * FROM client');
   }
 
   static findById(id) {
-    return db.execute('SELECT * FROM client WHERE client._id = ?', [id]);
+    return db().execute('SELECT * FROM client WHERE client._id = ?', [id]);
   }
 
   static findSecretById(id) {
-    return db.execute('SELECT clientSecret FROM client WHERE client._id = ?', [id]);
+    return db().execute('SELECT clientSecret FROM client WHERE client._id = ?', [id]);
   }
 
   static findGrantTypeById(id){
-    return db.execute('SELECT grantType FROM client WHERE client._id = ?', [id]);
+    return db().execute('SELECT grantType FROM client WHERE client._id = ?', [id]);
   }
 
   static findCountrForId(id) {
-    return db.execute('SELECT COUNT(*) AS count FROM client WHERE client._id = ?', [id]);
+    return db().execute('SELECT COUNT(*) AS count FROM client WHERE client._id = ?', [id]);
   }
 };
