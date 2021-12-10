@@ -16,7 +16,9 @@
 **/
 const winston = require('winston');
 const config = require('../config');
+require('winston-daily-rotate-file')
 
+const fs = require('fs')
 const cn = require('./common');
 
 const today = cn.formattedTodaysDate()
@@ -57,6 +59,7 @@ const consoleFormatter = winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.splat(),
+    winston.format.
     winston.format.printf((info) => {
       const { timestamp, level, message, ...meta } = info;
     
@@ -76,10 +79,13 @@ const consoleFormatter = winston.format.combine(
  */
 class Logger {    
     constructor() {
-      const saveToFileTransport = new winston.transports.File({
+      
+      const saveToFileTransport = new winston.transports.DailyRotateFile({
         format: fileFormatter,
+        datePattern: 'YYYY-MM-DD-HH',
         filename: `logs/error_${today}.log`,
         level: 'error',
+        json: false,
       });
       const consoleLogTransport = new winston.transports.Console({
         format: consoleFormatter,
@@ -122,4 +128,4 @@ class Logger {
 }
 
     
-module.exports = Logger;
+module.exports = new Logger();

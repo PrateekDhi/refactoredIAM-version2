@@ -17,17 +17,10 @@
 const serverErrors = require('../../errors');
 const ApplicationError = serverErrors.ApplicationError;
 
-const cn = require('../common')
-const today = cn.formattedTodaysDate()
-const fs = require('fs')
-const Logger= require('../logger');
-let logger;
+const logger= require('../logger');
 class ErrorHandler {
 
     async handleError(error) {
-        if(!(fs.existsSync(`logs/error_${today}.log`))){
-            logger = new Logger()
-        }
         //TODO: Divide errors into levels and log accordingly
         await logger.error(
             'Error message from the centralized error-handling component',
