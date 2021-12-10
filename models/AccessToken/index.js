@@ -1,4 +1,4 @@
-const {db} = require('../../utils/databases/mysql');
+const db = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class AccessToken {
@@ -19,7 +19,7 @@ module.exports = class AccessToken {
       // console.log('validation error', validationResult.error)
       throw new Error(validationResult.error)
     }
-    return db.execute(
+    return db.executeQuery(
       'INSERT INTO access_token (_id, access_token, user, clientId, expiresAt, scope) VALUES (?, ?, ?, ?, ?, ?)',
       [this._id, this.access_token, this.user, this.clientId, this.expiresAt, this.scope]
     );
@@ -28,10 +28,10 @@ module.exports = class AccessToken {
   static deleteById(id) {}
 
   static fetchAll() {
-    return db.execute('SELECT * FROM access_token');
+    return db.executeQuery('SELECT * FROM access_token');
   }
 
   static findById(id) {
-    return db.execute('SELECT * FROM access_token WHERE access_token._id = ?', [id]);
+    return db.executeQuery('SELECT * FROM access_token WHERE access_token._id = ?', [id]);
   }
 };

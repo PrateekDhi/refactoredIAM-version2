@@ -1,4 +1,4 @@
-const {db} = require('../../utils/databases/mysql');
+const db = require('../../utils/databases/mysql');
 const schema = require('./schema');
 
 module.exports = class User {
@@ -29,7 +29,7 @@ module.exports = class User {
       // console.log('validation error', validationResult.error)
       throw new Error(validationResult.error)
     }
-    return db.execute(
+    return db.executeQuery(
       'INSERT INTO user (_id, firstName, middleName, lastName, email, username, password, countryCode, phoneNumber, dateOfBirth, gender, phoneNumberVerificationStatus, usingDefaultUsername, creationTime, updationTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [this._id, this.firstName, this.middleName, this.lastName, this.email, this.username, this.password, this.countryCode, this.phoneNumber, this.dateOfBirth, this.gender, this.phoneNumberVerificationStatus, this.usingDefaultUsername, this.creationTime, this.updationTime]
     );
@@ -38,26 +38,26 @@ module.exports = class User {
   static deleteById(id) {}
 
   static fetchAll() {
-    return db.execute('SELECT * FROM user');
+    return db.executeQuery('SELECT * FROM user');
   }
 
   static findByEmail(email) {
-    return db.execute('SELECT * FROM user WHERE user.email = ?', [email]);
+    return db.executeQuery('SELECT * FROM user WHERE user.email = ?', [email]);
   }
 
   static findByUsername(username) {
-    return db.execute('SELECT * FROM user WHERE user.username = ?', [username]);
+    return db.executeQuery('SELECT * FROM user WHERE user.username = ?', [username]);
   }
 
   static findById(id) {
-    return db.execute('SELECT * FROM user WHERE user.id = ?', [id]);
+    return db.executeQuery('SELECT * FROM user WHERE user.id = ?', [id]);
   }
 
   static findEmailByUsername(username){
-    return db.execute('SELECT email FROM user WHERE user.username = ?', [username]);
+    return db.executeQuery('SELECT email FROM user WHERE user.username = ?', [username]);
   }
 
   static findCountForUsername(username){
-    return db.execute('SELECT COUNT(*) FROM user WHERE user.username = ?', [username]);
+    return db.executeQuery('SELECT COUNT(*) FROM user WHERE user.username = ?', [username]);
   }
 };

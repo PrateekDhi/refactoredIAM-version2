@@ -20,8 +20,9 @@
 const config = require('../../config');
 const mysql = require('mysql2');
 let pool;
+let db;
 
-const initiatePool = () => {
+const initiatePool = exports.initiateMySqlPool = () => {
     return new Promise((resolve, reject) => {
         pool = mysql.createPool({
             connectionLimit : config.app_db.connectionLimit || 100,
@@ -29,7 +30,7 @@ const initiatePool = () => {
             user     : config.app_db.user || "root",
             password : config.app_db.password || "",
             database : config.app_db.database || "iam-v3",
-            waitForConnections : config.waitForConnections || true,
+            waitForConnections : config.app_db.waitForConnections || true,
             queueLimit : config.app_db.queueLimit || 1000
         });
 
@@ -47,6 +48,7 @@ const initiatePool = () => {
                     con
                     .execute('SELECT 1', (err, results, fields) => {
                         con.release();
+                        db = pool.promise();
                         if(err) return reject({"status":"failed", "error":`MySQL error. ${err}`});
                         return resolve({"status":"success", "message":"MySQL connected.", "con":"Connection done"});
                     })
@@ -61,15 +63,30 @@ const initiatePool = () => {
     });
 }
 
-const db = () => {
-    // console.log(pool)
-    if(pool){
-        return pool.promise();
+exports.executeQuery = (query, params) => {
+    if(db){
+        if(params) return db.execute(query,params);
+        return db.execute(query)
     }
-    throw 'No pool present'
+    // }else{
+    //     initiatePool.then(response => {
+    //         if(params) return db.execute(query,params);
+    //         return db.execute(query)
+    //     }).catch(err => Promise.reject(`Could not connect to Mysql database, error - ${err}`));
+    // }
 }
 
-exports.initiateMySqlPool = initiatePool;
-exports.db = db;
+
+
+// const db = () => {
+//     // console.log(pool)
+//     if(pool){
+//         return pool.promise();
+//     }
+//     throw 'No pool present'
+// }
+
+// exports.initiateMySqlPool = initiatePool;
+// exports.db = db;
 
 // module.exports = pool.promise();

@@ -5,6 +5,8 @@ const AccessToken = require('../models/AccessToken');
 const RefreshToken = require('../models/RefreshToken');
 const AuthorizationCode = require('../models/AuthorizationCode');
 
+const ApplicationError = definedErrors.ApplicationError;
+
 /**
  * 
  * @author Prateek Shukla
@@ -33,9 +35,10 @@ exports.insertNewAccessToken = (token,userId,clientId,accessTokenExpiresAt,scope
         .catch(error => {
           if(error instanceof ApplicationError) return reject(error);
           let caughtError;
-          if(error.sqlMessage){
+          if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return reject(caughtError);
             // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             // error.message = "Database server error";
@@ -75,9 +78,10 @@ exports.insertNewRefreshToken = (token,userId,clientId,accessTokenExpiresAt,acce
         .catch(error => {
           if(error instanceof ApplicationError) return reject(error);
           let caughtError;
-          if(error.sqlMessage){
+          if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return reject(caughtError);
             // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
             // error.message = "Database server error";

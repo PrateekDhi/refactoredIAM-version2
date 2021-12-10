@@ -24,7 +24,6 @@
 
 const cn = require('../../utils/common');
 const definedErrors = require('../../errors');
-const ApplicationError = definedErrors.ApplicationError;
 
 //Services
 const oauthService = require('../../services/oauth');
@@ -45,6 +44,8 @@ const OauthResponseClient = require('../../models/OauthResponseClient');
 //Validations
 const validations = require('./validate');
 // const { Console } = require('winston/lib/winston/transports');
+
+const ApplicationError = definedErrors.ApplicationError;
 
 /**
  * 
@@ -84,9 +85,10 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
         .catch((error) => {
             if(error instanceof ApplicationError) return callback(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return callback(caughtError);
             } else if(error.message == 'Incorrect client id'){
                 caughtError = new definedErrors.IncorrectClientId();
@@ -138,9 +140,10 @@ exports.getClient = (clientId, clientSecret, callback) => {
         console.log(error)
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         } else if(error.message == 'Incorrect client id'){
             caughtError = new definedErrors.IncorrectClientId();
@@ -177,9 +180,10 @@ exports.grantTypeAllowed = (clientId, grantType, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         } else if(error.message == 'Incorrect client id'){
             caughtError = new definedErrors.IncorrectClientId();
@@ -307,9 +311,10 @@ exports.getUser = (username, password, callback) => {
                 .catch(error => {
                     if(error instanceof ApplicationError) return callback(error);
                     let caughtError;
-                    if(error.sqlMessage){
+                    if(error.hasOwnProperty('sql')){
                         caughtError = new definedErrors.DatabaseServerError();
                         caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                        caughtError.setType('fatal');
                         return callback(caughtError);
                     } else if(error.message == 'Invalid temporary user id'){
                         caughtError = new definedErrors.UserDoesNotExist();
@@ -383,9 +388,10 @@ exports.getUser = (username, password, callback) => {
                 .catch(error => {
                     if(error instanceof ApplicationError) return callback(error);
                     let caughtError;
-                    if(error.sqlMessage){
+                    if(error.hasOwnProperty('sql')){
                         caughtError = new definedErrors.DatabaseServerError();
                         caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                        caughtError.setType('fatal');
                         return callback(caughtError);
                     } else if(error.message == 'Invalid credentials'){
                         caughtError = new definedErrors.IncorrectCredentials();
@@ -434,9 +440,10 @@ exports.getUser = (username, password, callback) => {
                 .catch(error => {
                     if(error instanceof ApplicationError) return callback(error);
                     let caughtError;
-                    if(error.sqlMessage){
+                    if(error.hasOwnProperty('sql')){
                         caughtError = new definedErrors.DatabaseServerError();
                         caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                        caughtError.setType('fatal');
                         return callback(caughtError);
                     } else if(error.message == 'Invalid credentials'){
                         caughtError = new definedErrors.IncorrectCredentials();
@@ -512,9 +519,10 @@ exports.saveToken = (token,client,user,callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         }
         caughtError = new definedErrors.InternalServerError();
@@ -559,9 +567,10 @@ exports.saveAuthorizationCode = (code, client, user, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         }
         caughtError = new definedErrors.InternalServerError();
@@ -618,9 +627,10 @@ exports.getAccessToken = (bearerToken, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         } else if(error.message == 'Incorrect token'){
             caughtError = new definedErrors.Unauthorized();
@@ -682,9 +692,10 @@ exports.getRefreshToken = (refreshToken, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         } else if(error.message == 'Incorrect token'){
             caughtError = new definedErrors.Unauthorized();
@@ -738,9 +749,10 @@ exports.getAuthorizationCode = (authorizationCode, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         } else if(error.message == 'Incorrect token'){
             caughtError = new definedErrors.Unauthorized();
@@ -779,9 +791,10 @@ exports.revokeToken = (token, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         }
         caughtError = new definedErrors.InternalServerError();
@@ -812,9 +825,10 @@ exports.revokeAuthorizationCode = (code, callback) => {
     .catch(error => {
         if(error instanceof ApplicationError) return callback(error);
         let caughtError;
-        if(error.sqlMessage){
+        if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return callback(caughtError);
         }
         caughtError = new definedErrors.InternalServerError();

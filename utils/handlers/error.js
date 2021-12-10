@@ -21,13 +21,55 @@ const logger= require('../logger');
 class ErrorHandler {
 
     async handleError(error) {
-        //TODO: Divide errors into levels and log accordingly
-        await logger.error(
-            'Error message from the centralized error-handling component',
-            error,
-        );
-        // await sendMailToAdminIfCritical();
-        // await sendEventsToSentry();
+        delete error.type;
+        console.log('--------------------------')
+        console.log(error.type)
+        logger = new Logger()
+        // if(!(fs.existsSync(`logs/error_${today}.log`))){
+        // }
+        switch(error.type){
+            case 'trace':
+                await logger.trace(
+                    'Trace message from the centralized error-handling component',
+                    error,
+                )
+            break;
+
+            case 'debug':
+                await logger.debug(
+                    'Debug message from the centralized error-handling component',
+                    error,
+                )
+            break;
+
+            case 'info':
+                await logger.info(
+                    'Info message from the centralized error-handling component',
+                    error,
+                )
+            break;
+
+            case 'warn':
+                await logger.warn(
+                    'Warning message from the centralized error-handling component',
+                    error,
+                )
+            break;
+
+            case 'fatal':
+                //TODO: Send mail for fatal errors
+                await logger.fatal(
+                    'Fatal message from the centralized error-handling component',
+                    error,
+                )
+            break;
+
+            default:
+                await logger.error(
+                    'Error message from the centralized error-handling component',
+                    error,
+                )
+        }
     }
 
     isTrustedError(error) {

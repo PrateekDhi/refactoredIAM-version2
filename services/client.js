@@ -1,8 +1,8 @@
 const cn = require('../utils/common');
 const Client = require('../models/Client');
 const definedErrors = require('../errors');
-const ApplicationError = definedErrors.ApplicationError;
 
+const ApplicationError = definedErrors.ApplicationError;
 /**
  * 
  * @author Prateek Shukla
@@ -32,9 +32,10 @@ exports.getClientSecret = (id) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -61,6 +62,7 @@ exports.getClient = (id) => {
     return new Promise((resolve, reject) => {
         Client.findById(id)
         .then(([rows,fields]) => {
+            console.log(rows[0])
             let returnValue = {};
             if(rows.length == 1){
                 returnValue.present = true;
@@ -75,9 +77,10 @@ exports.getClient = (id) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -118,9 +121,10 @@ exports.getClientGrantType = (id) => {
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
             let caughtError;
-            if(error.sqlMessage){
+            if(error.hasOwnProperty('sql')){
                 caughtError = new definedErrors.DatabaseServerError();
                 caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+                caughtError.setType('fatal');
                 return reject(caughtError);
                 // console.error('Query that failed - ', error.sql, 'Error number - ',error.errno, 'Error code - ',error.code);
                 // error.message = "Database server error";
@@ -154,9 +158,10 @@ exports.checkClientExistenceById = (id) => {
         .catch(error => {
           if(error instanceof ApplicationError) return reject(error);
           let caughtError;
-          if(error.sqlMessage){
+          if(error.hasOwnProperty('sql')){
             caughtError = new definedErrors.DatabaseServerError();
             caughtError.setAdditionalDetails(`Query that failed - ${error.sql}, Error number - ${error.errno}, Error code - ${error.code}`);
+            caughtError.setType('fatal');
             return reject(caughtError);
           }
           caughtError = new definedErrors.InternalServerError();
