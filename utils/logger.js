@@ -59,7 +59,6 @@ const consoleFormatter = winston.format.combine(
     winston.format.colorize(),
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.splat(),
-    winston.format.
     winston.format.printf((info) => {
       const { timestamp, level, message, ...meta } = info;
     
