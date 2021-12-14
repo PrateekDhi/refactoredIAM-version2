@@ -92,7 +92,8 @@ app.use(handlingErrorsMiddleware);
 // app.use(app.oauth.errorHandler());
 
 initiateMySqlPool().then(response => {
-    console.log("\x1b[32m",'MySql Pool Initialization response - ', response)
+    if(response.status == 'success')console.log("\x1b[32m",'MySql Pool Initialized successfully')
+    else console.log("\x1b[32m",'MySql Pool Initialization response - ', response)
     const port = config.server_port || 3000;
     const ip = config.serve_ip || "localhost";
     app.listen(port, ip, () => {

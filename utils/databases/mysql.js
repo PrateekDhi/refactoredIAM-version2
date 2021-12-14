@@ -22,7 +22,8 @@ const mysql = require('mysql2');
 let pool;
 let db;
 
-const initiatePool = exports.initiateMySqlPool = () => {
+// const initiatePool = exports.initiateMySqlPool = () => {
+exports.initiateMySqlPool = () => {
     return new Promise((resolve, reject) => {
         pool = mysql.createPool({
             connectionLimit : config.app_db.connectionLimit || 100,

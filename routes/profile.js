@@ -6,8 +6,10 @@ const Response = oauthServer.Response;
 
 const userController = require('../controllers/user');
 const cn = require('../utils/common');
-const log = require('../utils/logger');
-const {oauthErrorHandler} = require('../middlewares/oauthErrorHandler')
+
+//Errors
+const definedErrors = require('../errors');
+const ApplicationError = definedErrors.ApplicationError;
 
 const multer = require('multer');
 const storage = multer.diskStorage({
@@ -99,7 +101,7 @@ module.exports =  (router, app) => {
 
     //route for entering into the restricted area.
     // router.post('/enter',  app.oauth.authenticate(), restrictedController.test)
-    
+    //TODO: Change authenticateRequest to a helper function that is imported and used here
     const authenticateRequest = (req,res,next) => {
 
         const request = new Request(req);
@@ -112,20 +114,10 @@ module.exports =  (router, app) => {
                 res.locals.oauth = {token: token}; //to pass on the token and its details to the controller function after succesful authorization
                 next();
             }).catch(err => {
-                // console.log("[][][][][--autheticate--][][][]"+ JSON.stringify(err))
-                if(err.internalCode != null){
-                    // delete err.statusCode; //same as code
-                    delete err.status; //same as code
-                    delete err.code;
-                    let responseError = {...err}
-                    responseError.code = responseError.internalCode;
-                    delete responseError.internalCode;
-                    delete responseError.statusCode
-                    res.status(err.statusCode || 500).json(responseError);
-                }else{
-                    res.locals.errObject = err;
-                    next();
-                }
+                if(err instanceof ApplicationError) return next(err);
+                let caughtError = new definedErrors.InternalServerError();
+                caughtError.setAdditionalDetails(err);
+                return next(caughtError);
             });
     }
 
