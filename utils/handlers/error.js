@@ -21,12 +21,9 @@ const logger= require('../logger');
 class ErrorHandler {
 
     async handleError(error) {
-        delete error.type;
-        console.log('--------------------------')
-        console.log(error.type)
-        logger = new Logger()
-        // if(!(fs.existsSync(`logs/error_${today}.log`))){
-        // }
+        // delete error.type;
+        // console.log('--------------------------')
+        // console.log(error.type)
         switch(error.type){
             case 'trace':
                 await logger.trace(
