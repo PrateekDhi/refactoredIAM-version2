@@ -9,6 +9,8 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
 const oAuthModel = require('./authorization/Oauth');
+const definedErrors = require('./errors');
+const ApplicationError = definedErrors.ApplicationError;
 const oAuth2Server = require('oauth2-server');
 app.oauth = new oAuth2Server({  //TODO: Add oauth configurations to config.json
     model: oAuthModel,
@@ -102,7 +104,17 @@ initiateMySqlPool().then(response => {
     // initializeFCMConnection().then(async () => {
     //     console.log("\x1b[32m",'Initialized FCM connection');
     // }).catch((err) => setImmediate(() => {console.log("\x1b[31m",'Could not initialize FCM connection, error - %s',err)}));
-}).catch((err) => console.log("\x1b[31m",'Could not connect to Mysql database, error - ',err));
+}).catch((err) => {
+    if(err instanceof ApplicationError) errorHandler.handleError(err);
+    else{
+        const caughtError = new definedErrors.MysqlConnectionError();
+        errorHandler.handleError(caughtError);
+        // if (!errorHandler.isTrustedError(error)) {
+        //     process.exit(1);
+        // }
+    }
+    // console.log("\x1b[31m",'Could not connect to Mysql database, error - ',err)
+});
 
 module.exports = {
   app
