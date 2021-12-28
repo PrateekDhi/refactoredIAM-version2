@@ -24,7 +24,7 @@ const controllerHandler = (promise, params) => async (req, res, next) => {
       const result = await promise(...boundParams);
       // console.log(result);
       // return result;
-      return res.json(result || { code: 200, message: 'OK' });
+      return res.status(200).json(result || { code: 200, message: 'OK' });
     } catch (error) {
       next(error);
       // console.log(error instanceof Error)
