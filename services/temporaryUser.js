@@ -29,7 +29,7 @@ exports.findTemporaryUserById = (id) => {
             returnValue.present = false;
             return resolve(returnValue);
         }
-        return reject("Duplicate entries found for given temporary user id - ", id);
+        return reject("Duplicate entries found for given temporary user id - " + id);
     })
     .catch(error => {
         if(error instanceof ApplicationError) return reject(error);
@@ -139,7 +139,7 @@ exports.checkTemporaryUserExistence = (id) => {
       const count = rows[0].count;
       if(count == 1) return resolve(true);
       else if(count == 0) return resolve(false);
-      return reject ("Duplicate entries found for temporary user id -", id)
+      return reject ("Duplicate entries found for temporary user id -" + id)
     })
     .catch(error => {
       if(error instanceof ApplicationError) return reject(error);

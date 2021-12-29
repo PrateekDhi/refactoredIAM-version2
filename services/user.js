@@ -28,12 +28,12 @@ exports.findUserByEmailAddress = (email) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            throw new Error("Duplicate entries found for given email - ", email)
+            throw new Error("Duplicate entries found for given email - " + email)
             // caughtError = new definedErrors.InternalServerError();
             // caughtError.setAdditionalDetails("Duplicate entries found for given email - "+ email);
             // return reject(caughtError);
             // caughtError = error.InternalServerError();
-            // return reject("Duplicate entries found for given email - ", email);
+            // return reject("Duplicate entries found for given email - " + email);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -77,11 +77,11 @@ exports.findUserByUsername = (username) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            throw new Error("Duplicate entries found for given username - "+username)
+            throw new Error("Duplicate entries found for given username - " + username)
             // const caughtError = new definedErrors.InternalServerError();
             // caughtError.setAdditionalDetails("Duplicate entries found for given username - " + username);
             // return reject(caughtError);
-            // return reject("Duplicate entries found for given email - ", email);
+            // return reject("Duplicate entries found for given email - " + email);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -125,8 +125,8 @@ exports.findUserEmailByUsername = (username) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            throw new Error("Duplicate entries found for given username - ", username)
-            // return reject("Duplicate entries found for given username - ", username);
+            throw new Error("Duplicate entries found for given username - " + username)
+            // return reject("Duplicate entries found for given username - " + username);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -218,7 +218,7 @@ exports.checkUserExistenceByUsername = (username) => {
           const count = rows[0].count;
           if(count == 1) return resolve(true);
           else if(count == 0) return resolve(false);
-          return reject ("Duplicate entries found for user's username -", username)
+          return reject ("Duplicate entries found for user's username -" + username)
         })
         .catch(error => {
           if(error instanceof ApplicationError) return reject(error);

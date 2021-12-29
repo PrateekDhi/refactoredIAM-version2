@@ -78,7 +78,7 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
                     token = jwt.compact();
                     return callback(false,token);
                 }catch(error){
-                    throw new Error("Error in tokenClaim model - ",error);
+                    throw new Error("Error in tokenClaim model - " + error);
                 }
             }else throw new Error("Incorrect client id");
         })
@@ -132,7 +132,7 @@ exports.getClient = (clientId, clientSecret, callback) => {
                 returnClientData = returnClientModel.fetch();
                 return callback(false,returnClientData);
             }catch(error){
-                throw new Error("Invalid OauthResponseClient model - ",error);
+                throw new Error("Invalid OauthResponseClient model - " + error);
             }
         }else throw new Error('Incorrect client id')
     })

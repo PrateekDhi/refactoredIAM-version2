@@ -27,7 +27,7 @@ exports.getClientSecret = (id) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            throw new Error("Duplicate entries found for given client id - ", id);
+            throw new Error("Duplicate entries found for given client id - " + id);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -72,7 +72,7 @@ exports.getClient = (id) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            throw new Error("Duplicate entries found for given client id - ", id);
+            throw new Error("Duplicate entries found for given client id - " + id);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -116,7 +116,7 @@ exports.getClientGrantType = (id) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            throw new Error("Duplicate entries found for given client id - ", id);
+            throw new Error("Duplicate entries found for given client id - " + id);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -153,7 +153,7 @@ exports.checkClientExistenceById = (id) => {
           const count = rows[0].count;
           if(count == 1) return resolve(true);
           else if(count == 0) return resolve(false);
-          return reject ("Duplicate entries found for client id -", id)
+          return reject ("Duplicate entries found for client id -" + id)
         })
         .catch(error => {
           if(error instanceof ApplicationError) return reject(error);

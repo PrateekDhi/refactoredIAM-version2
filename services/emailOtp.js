@@ -126,7 +126,7 @@ exports.getEmailOTPByUserIdAndOtp = (id,otp) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            return reject("Duplicate entries found for given username - ", username);
+            return reject("Duplicate entries found for given username - " + username);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);
@@ -175,7 +175,7 @@ exports.getEmailOTPDataById = (id) => {
                 returnValue.present = false;
                 return resolve(returnValue);
             }
-            return reject("Duplicate entries found for given email otp id - ", id);
+            return reject("Duplicate entries found for given email otp id - " + id);
         })
         .catch(error => {
             if(error instanceof ApplicationError) return reject(error);

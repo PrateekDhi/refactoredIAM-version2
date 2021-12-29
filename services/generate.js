@@ -29,7 +29,7 @@ exports.generateNewUsername = () => {
                 //     throw new Error(err)
                 // });
             }else if(rows.length == 0) return resolve(randomUsername);
-            throw new Error("Duplicate entries found for given username - ", randomUsername);
+            throw new Error("Duplicate entries found for given username - " + randomUsername);
         })
         .then(uniqueUsername => resolve(uniqueUsername))
         .catch(error => {
