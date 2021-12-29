@@ -30,7 +30,7 @@ exports.findUserByEmailAddress = (email) => {
             }
             throw new Error("Duplicate entries found for given email - ", email)
             // caughtError = new definedErrors.InternalServerError();
-            // caughtError.setAdditionalDetails("Duplicate entries found for given email - ", email);
+            // caughtError.setAdditionalDetails("Duplicate entries found for given email - "+ email);
             // return reject(caughtError);
             // caughtError = error.InternalServerError();
             // return reject("Duplicate entries found for given email - ", email);
@@ -79,7 +79,7 @@ exports.findUserByUsername = (username) => {
             }
             throw new Error("Duplicate entries found for given username - "+username)
             // const caughtError = new definedErrors.InternalServerError();
-            // caughtError.setAdditionalDetails("Duplicate entries found for given username - "+username);
+            // caughtError.setAdditionalDetails("Duplicate entries found for given username - " + username);
             // return reject(caughtError);
             // return reject("Duplicate entries found for given email - ", email);
         })
