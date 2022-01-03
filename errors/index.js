@@ -22,6 +22,7 @@ exports.UndefinedRoute = require('./undefined_route');
 exports.UserAlreadyRegistered = require('./user_already_registered');
 exports.UserDoesNotExist = require('./user_does_not_exist');
 exports.MysqlConnectionError = require('./mysql_connection_error');
+exports.InvalidRequestContents = require('./invalid_request_contents');
 
 // //Divisions of error
 // exports.fatalErrors = [InternalServerError,DatabaseServerError]
