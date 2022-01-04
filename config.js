@@ -66,5 +66,5 @@ module.exports = {
     email_otp: {
         validity_duration: parseInt(process.env.EMAIL_OTP_VALIDITY_DURATION)
     },
-    jwt_cryptographic_algorithm = process.env.JWT_CRYPTOGRAPHIC_ALGORITHM
+    jwt_cryptographic_algorithm: process.env.JWT_CRYPTOGRAPHIC_ALGORITHM
 }
