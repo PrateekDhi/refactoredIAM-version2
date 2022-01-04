@@ -400,7 +400,7 @@ exports.resetPasswordEmail = (username,client_id) => {
         })
         .then(result => Promise.all(
             [
-                jweService.createEncrypt(process.env.RECOVERYTOKENENCRYPTIONKEY,token),
+                jweService.createEncrypt(config.recovery_token_encryption_key.k,token),
                 User.findEmail(req.userId)
             ])
         )  //createEncrypt takes the key as first parameter and data to be encrypted as second parameter

@@ -35,7 +35,7 @@ module.exports = {
         waitForConnections : process.env.MYSQL_WAIT_FOR_CONNECTIONS_OPTION,
         queueLimit : parseInt(process.env.MYSQL_QUEUE_LIMIT)
     },
-    server_link: process.env.SERVER_LINK,
+    // server_link: process.env.SERVER_LINK,
     email_gateway_api_key: process.env.EMAIL_GATEWAY_API_KEY,
     sms_gateway:{
         user_name: process.env.SMS_GATEWAY_USERNAME,
@@ -65,5 +65,6 @@ module.exports = {
     },
     email_otp: {
         validity_duration: parseInt(process.env.EMAIL_OTP_VALIDITY_DURATION)
-    }
+    },
+    jwt_cryptographic_algorithm = process.env.JWT_CRYPTOGRAPHIC_ALGORITHM
 }

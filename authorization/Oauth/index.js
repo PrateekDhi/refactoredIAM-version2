@@ -23,6 +23,7 @@
 // const InvalidTokenError = require('oauth2-server/lib/errors/invalid-token-error');
 
 const cn = require('../../utils/common');
+const config = require('../../config');
 const definedErrors = require('../../errors');
 
 //Services
@@ -72,7 +73,7 @@ exports.generateAccessToken = exports.generateRefreshToken = (client, user, scop
                 let token;
                 try{
                     claims = tokenClaim.fetch();
-                    jwt = jwtService.create(claims,result.data.clientSecret,process.env.JWT_CRYPTOGRAPHIC_ALGORITHM);
+                    jwt = jwtService.create(claims,result.data.clientSecret,config.jwt_cryptographic_algorithm);
                     jwt.setExpiration();
         
                     token = jwt.compact();
@@ -607,7 +608,7 @@ exports.getAccessToken = (bearerToken, callback) => {
             user = result.data.user;
             accessToken = result.data.access_token;
             accessTokenExpiresAt = result.data.expiresAt;
-            return jwtService.verify(bearerToken,clientSecret,process.env.JWT_CRYPTOGRAPHIC_ALGORITHM)
+            return jwtService.verify(bearerToken,clientSecret,config.jwt_cryptographic_algorithm)
         }else throw new Error('Incorrect token');
     })
     .then(verifiedJwt => {
@@ -671,7 +672,7 @@ exports.getRefreshToken = (refreshToken, callback) => {
             user = result.data.user;
             accessToken = result.data.access_token;
             accessTokenExpiresAt = result.data.expiresAt;
-            return jwtService.verify(refreshToken,clientSecret,process.env.JWT_CRYPTOGRAPHIC_ALGORITHM)
+            return jwtService.verify(refreshToken,clientSecret,config.jwt_cryptographic_algorithm)
         }
         throw new Error('Incorrect token');
     })
